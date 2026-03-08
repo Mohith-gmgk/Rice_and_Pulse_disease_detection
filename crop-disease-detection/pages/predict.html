@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detect Disease — CropSense AI</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-icon">🌿</div>
+      CropSense<span style="color:var(--gold)">AI</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="predict.html" class="active">
+        <span class="nav-icon">🔬</span> Detect Disease
+      </a>
+
+      <div class="sidebar-section-label">Account</div>
+      <a href="index.html">
+        <span class="nav-icon">🏠</span> Home
+      </a>
+      <a href="#" onclick="logout(); return false;">
+        <span class="nav-icon">🚪</span> Sign Out
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+          <div class="sidebar-user-email" id="sidebar-user-email"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1 class="page-title">🔬 Detect Disease</h1>
+      <p class="page-subtitle">Upload a leaf image for AI-powered disease detection using EfficientNetB2</p>
+    </div>
+
+    <!-- Tips bar -->
+    <div class="alert alert-warning" style="margin-bottom:28px;">
+      <span>💡</span>
+      <span>
+        <strong>Tips for best results:</strong> Use a clear, well-lit photo of the affected leaf. 
+        Avoid blurry images. Capture the full leaf including disease spots.
+      </span>
+    </div>
+
+    <div class="predict-layout">
+
+      <!-- LEFT: Upload -->
+      <div>
+        <!-- Upload zone -->
+        <input type="file" id="file-input" accept="image/*" style="display:none;">
+
+        <div id="upload-zone" class="upload-zone">
+          <div class="upload-icon">🌿</div>
+          <div class="upload-title">Drop your leaf image here</div>
+          <p class="upload-hint">or click to browse from your device</p>
+          <button class="btn btn-outline" onclick="document.getElementById('file-input').click(); event.stopPropagation();">
+            📁 Choose Image
+          </button>
+          <div class="upload-formats">
+            <span class="format-badge">JPG</span>
+            <span class="format-badge">PNG</span>
+            <span class="format-badge">WEBP</span>
+            <span class="format-badge">Max 10MB</span>
+          </div>
+        </div>
+
+        <!-- Analyze button -->
+        <div style="display:flex;gap:12px;margin-top:20px;">
+          <button id="analyze-btn" class="btn btn-primary btn-lg" style="flex:1;" disabled onclick="runAnalysis()">
+            🔬 Analyze Now
+          </button>
+        </div>
+
+        <!-- Supported crops info -->
+        <div class="card" style="margin-top:24px;">
+          <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:14px;">🌾 Supported Crops & Diseases</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🔴 Rice Blast</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🟤 Brown Spot</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🟡 Leaf Blight</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🔶 Tungro Virus</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🟠 Sheath Blight</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🔴 Cassava Mosaic</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">🟤 Fusarium Wilt</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">⚪ Powdery Mildew</div>
+            <div style="font-size:0.82rem;color:var(--green-light);">🟢 Healthy Leaf</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">+ More diseases</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Result -->
+      <div class="result-card">
+        <div class="result-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <span id="result-header-title">Detection Result</span>
+          <button id="save-btn" class="btn btn-outline btn-sm" style="display:none;" onclick="savePrediction()">
+            💾 Save to History
+          </button>
+        </div>
+        <div class="result-card-body" id="result-body">
+          <div class="result-placeholder">
+            <div class="placeholder-icon">🔬</div>
+            <p>Upload a leaf image and click<br><strong>Analyze Now</strong> to detect diseases</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="CropBot">🤖</button>
+  <div id="chatbot-panel" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()">✕</button>
+      </div>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('How do I take a good photo for disease detection?')">📸 Photo Tips</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('What is Rice Blast?')">🌾 Rice Blast</span>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask CropBot..." rows="1"></textarea>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../js/model.js"></script>
+<script src="../js/chatbot.js"></script>
+<script type="module" src="../js/predict-firebase.js"></script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Setup Guide — CropSense AI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+    :root {
+      --green: #2db567; --dark: #070f0a; --card: #0d1f14;
+      --border: rgba(45,181,103,0.18); --text: #e8f5ee; --muted: #8ab89a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); line-height: 1.7; }
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+    h2 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin: 40px 0 14px; display: flex; align-items: center; gap: 10px; }
+    h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--green); }
+    p { color: #aac4b4; margin-bottom: 12px; }
+    .step-badge {
+      width: 32px; height: 32px; background: linear-gradient(135deg, #1a7a4a, #2db567);
+      border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; flex-shrink: 0;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 16px;
+    }
+    code {
+      background: rgba(45,181,103,0.1); border: 1px solid rgba(45,181,103,0.2);
+      border-radius: 6px; padding: 2px 8px; font-size: 0.88rem; color: var(--green);
+      font-family: monospace;
+    }
+    pre {
+      background: #050d08; border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px; overflow-x: auto; margin: 12px 0;
+    }
+    pre code {
+      background: none; border: none; padding: 0; color: #80ffb4;
+      font-size: 0.85rem; line-height: 1.7;
+    }
+    .highlight { color: var(--green); font-weight: 600; }
+    .warning { background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.25); border-radius: 10px; padding: 14px 18px; margin: 16px 0; color: #f5c842; font-size: 0.9rem; }
+    .success-box { background: rgba(45,181,103,0.08); border: 1px solid rgba(45,181,103,0.25); border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.9rem; }
+    .file-tag { display: inline-block; background: rgba(45,181,103,0.1); border: 1px solid rgba(45,181,103,0.2); border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; color: var(--green); font-family: monospace; margin: 2px; }
+    ul { padding-left: 20px; color: #aac4b4; }
+    ul li { margin-bottom: 6px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+    .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🔥 Firebase Integration Guide</h1>
+  <p class="subtitle">Step-by-step guide to connect CropSense AI to Firebase — Authentication, Firestore Database & Storage</p>
+
+  <!-- ===== STEP 1 ===== -->
+  <h2><span class="step-badge">1</span> Create a Firebase Project</h2>
+  <div class="card">
+    <ul>
+      <li>Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--green);">console.firebase.google.com</a></li>
+      <li>Click <strong>"Add project"</strong></li>
+      <li>Name it <code>crop-disease-detection</code></li>
+      <li>Disable Google Analytics (optional) → Click <strong>"Create project"</strong></li>
+      <li>Wait for it to load → Click <strong>"Continue"</strong></li>
+    </ul>
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <h2><span class="step-badge">2</span> Register Your Web App</h2>
+  <div class="card">
+    <ul>
+      <li>In Firebase Console → Click the <strong>Web icon &lt;/&gt;</strong></li>
+      <li>App nickname: <code>CropSense Web</code></li>
+      <li>Check <strong>"Also set up Firebase Hosting"</strong> (optional)</li>
+      <li>Click <strong>"Register app"</strong></li>
+      <li>You'll see a config object — <strong>copy it</strong></li>
+    </ul>
+    <div class="warning">⚠️ Keep your config safe. Never share your API key publicly on GitHub without environment variables.</div>
+  </div>
+
+  <!-- ===== STEP 3 ===== -->
+  <h2><span class="step-badge">3</span> Paste Config into firebase-config.js</h2>
+  <div class="card">
+    <p>Open <span class="file-tag">js/firebase-config.js</span> and replace the placeholder values:</p>
+    <pre><code>const firebaseConfig = {
+  apiKey:            "AIzaSy...",           // ← paste yours
+  authDomain:        "yourproject.firebaseapp.com",
+  projectId:         "yourproject",
+  storageBucket:     "yourproject.appspot.com",
+  messagingSenderId: "123456789",
+  appId:             "1:123456:web:abc123"
+};</code></pre>
+  </div>
+
+  <!-- ===== STEP 4 ===== -->
+  <h2><span class="step-badge">4</span> Enable Firebase Authentication</h2>
+  <div class="card">
+    <ul>
+      <li>Firebase Console → Left menu → <strong>Authentication</strong></li>
+      <li>Click <strong>"Get started"</strong></li>
+      <li>Under <strong>Sign-in method</strong> tab → Click <strong>Email/Password</strong></li>
+      <li>Toggle <strong>Enable</strong> → Click <strong>Save</strong></li>
+    </ul>
+    <div class="success-box">✅ This handles user registration and login securely.</div>
+  </div>
+
+  <!-- ===== STEP 5 ===== -->
+  <h2><span class="step-badge">5</span> Create Firestore Database</h2>
+  <div class="card">
+    <ul>
+      <li>Firebase Console → Left menu → <strong>Firestore Database</strong></li>
+      <li>Click <strong>"Create database"</strong></li>
+      <li>Select <strong>"Start in test mode"</strong> (for development)</li>
+      <li>Choose your region (e.g., <code>asia-south1</code> for India) → Click <strong>Done</strong></li>
+    </ul>
+
+    <h3>Firestore Data Structure</h3>
+    <pre><code>firestore/
+├── users/
+│   └── {userId}/
+│       ├── firstName: "John"
+│       ├── lastName:  "Doe"
+│       ├── email:     "john@example.com"
+│       ├── mobile:    "+91 98765 43210"
+│       ├── avatar:    "https://storage.googleapis.com/..."
+│       ├── createdAt: Timestamp
+│       └── predictions/ (subcollection)
+│           └── {predictionId}/
+│               ├── disease:    "Rice Blast"
+│               ├── crop:       "Rice"
+│               ├── confidence: 0.942
+│               ├── severity:   "High"
+│               ├── model:      "EfficientNetB2"
+│               ├── thumbnail:  "https://storage.googleapis.com/..."
+│               └── createdAt:  Timestamp</code></pre>
+
+    <h3>Firestore Security Rules</h3>
+    <p>Go to Firestore → <strong>Rules</strong> tab → paste these rules:</p>
+    <pre><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Users can only access their own predictions
+      match /predictions/{predId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}</code></pre>
+    <p>Click <strong>Publish</strong></p>
+  </div>
+
+  <!-- ===== STEP 6 ===== -->
+  <h2><span class="step-badge">6</span> Enable Firebase Storage</h2>
+  <div class="card">
+    <ul>
+      <li>Firebase Console → Left menu → <strong>Storage</strong></li>
+      <li>Click <strong>"Get started"</strong></li>
+      <li>Start in <strong>test mode</strong> → Click <strong>Done</strong></li>
+    </ul>
+
+    <h3>Storage Security Rules</h3>
+    <p>Go to Storage → <strong>Rules</strong> tab → paste:</p>
+    <pre><code>rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Profile pictures — only owner can upload
+    match /avatars/{userId}.jpg {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Prediction thumbnails — only owner can upload
+    match /predictions/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</code></pre>
+    <p>Click <strong>Publish</strong></p>
+  </div>
+
+  <!-- ===== STEP 7 ===== -->
+  <h2><span class="step-badge">7</span> Update Your HTML Pages</h2>
+  <div class="card">
+    <p>Replace the old script tags in your HTML pages with the new Firebase versions:</p>
+
+    <h3>In login.html — replace bottom scripts:</h3>
+    <pre><code>&lt;!-- REMOVE this --&gt;
+&lt;script src="../js/auth.js"&gt;&lt;/script&gt;
+
+&lt;!-- ADD this instead --&gt;
+&lt;script type="module" src="../js/auth-firebase.js"&gt;&lt;/script&gt;</code></pre>
+
+    <h3>In signup.html — replace bottom scripts:</h3>
+    <pre><code>&lt;!-- REMOVE this --&gt;
+&lt;script src="../js/auth.js"&gt;&lt;/script&gt;
+
+&lt;!-- ADD this instead --&gt;
+&lt;script type="module" src="../js/auth-firebase.js"&gt;&lt;/script&gt;</code></pre>
+
+    <h3>In dashboard.html — replace bottom scripts:</h3>
+    <pre><code>&lt;!-- REMOVE these --&gt;
+&lt;script src="../js/auth.js"&gt;&lt;/script&gt;
+&lt;script src="../js/dashboard.js"&gt;&lt;/script&gt;
+
+&lt;!-- ADD these instead --&gt;
+&lt;script type="module" src="../js/dashboard-firebase.js"&gt;&lt;/script&gt;</code></pre>
+
+    <h3>In predict.html — replace bottom scripts:</h3>
+    <pre><code>&lt;!-- REMOVE these --&gt;
+&lt;script src="../js/auth.js"&gt;&lt;/script&gt;
+&lt;script src="../js/predict.js"&gt;&lt;/script&gt;
+
+&lt;!-- ADD these (keep model.js and chatbot.js) --&gt;
+&lt;script src="../js/model.js"&gt;&lt;/script&gt;
+&lt;script type="module" src="../js/predict-firebase.js"&gt;&lt;/script&gt;
+&lt;script src="../js/chatbot.js"&gt;&lt;/script&gt;</code></pre>
+
+    <div class="warning">⚠️ Important: Firebase JS files use <code>type="module"</code>. This means they only work on a server (localhost or deployed). They will NOT work by opening HTML files directly (file://).</div>
+  </div>
+
+  <!-- ===== STEP 8 ===== -->
+  <h2><span class="step-badge">8</span> Test Locally with VS Code Live Server</h2>
+  <div class="card">
+    <ul>
+      <li>Install <strong>VS Code</strong> if not installed</li>
+      <li>Install the <strong>"Live Server"</strong> extension in VS Code</li>
+      <li>Open your project folder in VS Code</li>
+      <li>Right-click <code>pages/index.html</code> → <strong>"Open with Live Server"</strong></li>
+      <li>It opens at <code>http://127.0.0.1:5500/pages/index.html</code></li>
+    </ul>
+    <div class="success-box">✅ Firebase modules work correctly on localhost!</div>
+  </div>
+
+  <!-- ===== STEP 9 ===== -->
+  <h2><span class="step-badge">9</span> Deploy to Firebase Hosting (Optional)</h2>
+  <div class="card">
+    <p>Run these commands in PowerShell from your project folder:</p>
+    <pre><code># Install Firebase CLI
+npm install -g firebase-tools
+
+# Login to Firebase
+firebase login
+
+# Initialize hosting in your project folder
+firebase init hosting
+
+# When asked:
+# - Public directory: .  (dot = current folder)
+# - Single-page app: No
+# - Overwrite index.html: No
+
+# Deploy
+firebase deploy</code></pre>
+
+    <p>Your site will be live at: <code>https://yourproject.web.app</code></p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Summary -->
+  <h2>📁 New Firebase Files Added</h2>
+  <div class="card">
+    <p>These are the new Firebase files in your <code>js/</code> folder:</p>
+    <br>
+    <span class="file-tag">js/firebase-config.js</span> → Firebase initialization<br><br>
+    <span class="file-tag">js/auth-firebase.js</span> → Replaces auth.js (Firebase Auth + Firestore)<br><br>
+    <span class="file-tag">js/predict-firebase.js</span> → Replaces predict.js (saves to Firestore + Storage)<br><br>
+    <span class="file-tag">js/dashboard-firebase.js</span> → Replaces dashboard.js (reads from Firestore)
+  </div>
+
+  <div class="success-box" style="margin-top:24px;">
+    🎉 <strong>That's it!</strong> Once you complete all steps, your user registrations, logins, profile pictures, and prediction history will all be stored securely in Firebase — accessible from any device, any browser.
+  </div>
+
+</div>
+</body>
+</html>

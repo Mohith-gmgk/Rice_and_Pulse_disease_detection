@@ -1,0 +1,231 @@
+/* ============================================================
+   AUTH PAGES EXTENDED STYLES
+   ============================================================ */
+
+/* Profile picture upload */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.avatar-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--bg-card2);
+  border: 2.5px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.avatar-preview:hover { border-color: var(--green-light); }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-preview .avatar-icon { font-size: 2rem; color: var(--text-muted); }
+
+.avatar-hint {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Password strength meter */
+.password-strength {
+  margin-top: 8px;
+}
+
+.strength-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.strength-segment {
+  height: 4px;
+  flex: 1;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.08);
+  transition: background 0.3s;
+}
+
+.strength-segment.filled.weak { background: var(--red); }
+.strength-segment.filled.fair { background: var(--gold); }
+.strength-segment.filled.strong { background: var(--green-light); }
+
+.strength-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Password requirements checklist */
+.pw-requirements {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.pw-req {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.pw-req .req-icon { font-size: 0.8rem; }
+.pw-req.met { color: var(--green-light); }
+.pw-req.unmet .req-icon::before { content: '○'; }
+.pw-req.met .req-icon::before { content: '✓'; }
+
+/* Auth left panel content */
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.auth-brand-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+
+.auth-brand-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--green-light);
+}
+
+.auth-panel-title {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.auth-panel-title span { color: var(--green-light); }
+
+.auth-panel-desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.auth-feature-icon {
+  width: 36px; height: 36px;
+  background: rgba(45,181,103,0.12);
+  border: 1px solid rgba(45,181,103,0.2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Form row for two columns */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Auth link */
+.auth-link-row {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.auth-link-row a {
+  color: var(--green-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link-row a:hover { text-decoration: underline; }
+
+/* Form title */
+.form-section-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+/* Submit button full width */
+.btn-block { width: 100%; justify-content: center; }
+
+/* Eye toggle inside password */
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 4px;
+  transition: color 0.2s;
+  margin-top: 14px;
+}
+.pw-toggle:hover { color: var(--text-primary); }
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .pw-requirements { grid-template-columns: 1fr; }
+}

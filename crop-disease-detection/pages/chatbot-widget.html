@@ -1,0 +1,44 @@
+<!-- ============================================================
+     CHATBOT COMPONENT — Include this in any page
+     Add <script src="../js/chatbot.js"></script> too
+     ============================================================ -->
+
+<!-- Chatbot FAB -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="Chat with CropBot">🤖</button>
+
+  <!-- Chat Panel -->
+  <div id="chatbot-panel" style="display:none;">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online · Agriculture Expert</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()" title="Clear chat">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages"></div>
+
+    <!-- Quick suggestion chips -->
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('What is Rice Blast?')">🌾 Rice Blast</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How to treat Brown Spot?')">💊 Treatments</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How does EfficientNetB2 work?')">🧠 AI Model</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('What crops are supported?')">🌱 Crops</span>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask about crop diseases..." rows="1"></textarea>
+      <button id="chat-send" title="Send">➤</button>
+    </div>
+
+  </div>
+</div>

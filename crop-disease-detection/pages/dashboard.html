@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — CropSense AI</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-icon">🌿</div>
+      CropSense<span style="color:var(--gold)">AI</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="predict.html">
+        <span class="nav-icon">🔬</span> Detect Disease
+      </a>
+
+      <div class="sidebar-section-label">Account</div>
+      <a href="index.html">
+        <span class="nav-icon">🏠</span> Home
+      </a>
+      <a href="#" onclick="logout(); return false;">
+        <span class="nav-icon">🚪</span> Sign Out
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+          <div class="sidebar-user-email" id="sidebar-user-email"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Page header -->
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h1 class="page-title">Dashboard 📊</h1>
+        <p class="page-subtitle">Track your crop disease detection history and insights</p>
+      </div>
+      <a href="predict.html" class="btn btn-primary">
+        🔬 New Detection
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🔬</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total Detections</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="stat-today">0</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🦠</div>
+        <div class="stat-value" id="stat-diseases">0</div>
+        <div class="stat-label">Unique Diseases Found</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value" id="stat-accuracy">—</div>
+        <div class="stat-label">Avg. Confidence</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:16px;">🦠 Disease Distribution</div>
+        <div style="height:200px;position:relative;">
+          <canvas id="disease-chart"></canvas>
+          <div id="no-disease-chart" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.88rem;text-align:center;">
+            No data yet.<br>Run your first detection!
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:16px;">📅 Last 7 Days Activity</div>
+        <div style="height:200px;position:relative;">
+          <canvas id="week-chart"></canvas>
+          <div id="no-week-chart" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.88rem;text-align:center;">
+            No activity yet.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity + History -->
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start;">
+
+      <!-- Recent -->
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:4px;">⚡ Recent Activity</div>
+        <div id="recent-list"></div>
+        <a href="#history-section" class="btn btn-outline btn-sm btn-block" style="margin-top:12px;">View All History</a>
+      </div>
+
+      <!-- History table -->
+      <div class="history-section" id="history-section">
+        <div class="history-header">
+          <div class="history-title">📋 Detection History</div>
+          <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">🗑 Clear All</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Disease</th>
+                <th>Severity</th>
+                <th>Confidence</th>
+                <th>Date & Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="CropBot">🤖</button>
+  <div id="chatbot-panel" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()">✕</button>
+      </div>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('What diseases should I watch for in rice?')">🌾 Rice Diseases</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('Best practices for pulse cultivation?')">🌱 Pulses</span>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask CropBot..." rows="1"></textarea>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../js/chatbot.js"></script>
+<script type="module" src="../js/dashboard-firebase.js"></script>
+</body>
+</html>
