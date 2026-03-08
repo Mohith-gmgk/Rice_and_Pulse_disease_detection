@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropSense AI — Rice & Pulse Disease Detection</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/home.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+</head>
+<body>
+
+<!-- ======== NAVBAR ======== -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">🌿</div>
+    CropSense<span style="color:var(--gold)">AI</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#diseases">Diseases</a></li>
+    <li><a href="#model">Our Model</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn btn-ghost">Sign In</a>
+    <a href="signup.html" class="btn btn-primary">Get Started →</a>
+  </div>
+</nav>
+
+<!-- ======== HERO ======== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <!-- Floating particles -->
+  <div class="particles" id="particles"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span>🔬</span> AI-Powered Crop Disease Detection
+      </div>
+      <h1 class="hero-title">
+        Detect Crop Diseases<br>
+        with <span class="highlight">Precision AI</span>
+      </h1>
+      <p class="hero-desc">
+        Upload a leaf image and our EfficientNetB2 deep learning model instantly detects diseases in rice and pulse crops — with detailed diagnosis, treatment plans, and confidence scores.
+      </p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-primary btn-lg">🚀 Start Detecting Free</a>
+        <a href="#how-it-works" class="btn btn-outline btn-lg">See How It Works</a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-value">95<span>%+</span></div>
+          <div class="hero-stat-label">Detection Accuracy</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">15<span>+</span></div>
+          <div class="hero-stat-label">Disease Classes</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">&lt;2<span>s</span></div>
+          <div class="hero-stat-label">Inference Speed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero visual card -->
+  <div class="hero-visual">
+    <div class="hero-visual-card">
+      <div class="visual-img-placeholder">🍃</div>
+      <div class="visual-result-overlay">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div class="vr-disease">Rice Blast Detected</div>
+            <div class="vr-crop">Oryza sativa · High Severity</div>
+          </div>
+          <span class="badge badge-red">⚠ High</span>
+        </div>
+        <div class="vr-bar"><div class="vr-fill"></div></div>
+        <div class="vr-pct">94.2% Confidence · EfficientNetB2</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== HOW IT WORKS ======== -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <div class="section-eyebrow">Simple Process</div>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-desc">From image upload to detailed diagnosis in under 3 seconds</p>
+    </div>
+
+    <div class="steps-grid animate-on-scroll">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-title">Upload Leaf Image</div>
+        <p class="step-desc">Take a clear photo of the affected leaf and upload it to our platform.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-title">AI Processing</div>
+        <p class="step-desc">Our EfficientNetB2 model extracts features using transfer learning.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-title">Disease Detection</div>
+        <p class="step-desc">CNN layers classify the disease with confidence scores and top predictions.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-title">Get Full Report</div>
+        <p class="step-desc">Receive diagnosis, treatment plan, prevention tips, and save to history.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== FEATURES ======== -->
+<section class="section" id="features" style="background:linear-gradient(180deg, transparent, rgba(26,122,74,0.04), transparent);">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <div class="section-eyebrow">Why CropSense AI</div>
+      <h2 class="section-title">Powerful Features</h2>
+      <p class="section-desc">Everything you need for accurate, fast, and actionable crop disease detection</p>
+    </div>
+
+    <div class="features-grid animate-on-scroll">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Deep Learning Model</div>
+        <p class="feature-desc">Powered by EfficientNetB2 with Transfer Learning — trained on thousands of leaf images for high accuracy disease classification.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Real-Time Detection</div>
+        <p class="feature-desc">Get results in under 2 seconds. Our optimized CNN pipeline processes images instantly for immediate field decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Confidence Scoring</div>
+        <p class="feature-desc">Every prediction comes with a confidence percentage and top-5 alternative disease probabilities for informed decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💊</div>
+        <div class="feature-title">Treatment Plans</div>
+        <p class="feature-desc">Automatic treatment and prevention recommendations based on detected disease type and severity level.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">History Dashboard</div>
+        <p class="feature-desc">Track all your predictions over time. View trends, disease distribution charts, and manage your detection history.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI Chatbot</div>
+        <p class="feature-desc">Ask CropBot anything about crop diseases, agricultural practices, or how our AI model works — 24/7 instant answers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== DISEASES ======== -->
+<section class="section" id="diseases">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <div class="section-eyebrow">Detection Coverage</div>
+      <h2 class="section-title">Diseases We Detect</h2>
+      <p class="section-desc">Our model identifies the most critical rice and pulse crop diseases affecting South Asian agriculture</p>
+    </div>
+
+    <div class="diseases-grid animate-on-scroll">
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🔴</div>
+        <div>
+          <div class="disease-chip-name">Rice Blast</div>
+          <div class="disease-chip-crop">Rice</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🟤</div>
+        <div>
+          <div class="disease-chip-name">Brown Spot</div>
+          <div class="disease-chip-crop">Rice</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🟡</div>
+        <div>
+          <div class="disease-chip-name">Leaf Blight</div>
+          <div class="disease-chip-crop">Rice</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🔶</div>
+        <div>
+          <div class="disease-chip-name">Tungro Virus</div>
+          <div class="disease-chip-crop">Rice</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🟠</div>
+        <div>
+          <div class="disease-chip-name">Sheath Blight</div>
+          <div class="disease-chip-crop">Rice</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🔴</div>
+        <div>
+          <div class="disease-chip-name">Cassava Mosaic</div>
+          <div class="disease-chip-crop">Cassava</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🟤</div>
+        <div>
+          <div class="disease-chip-name">Fusarium Wilt</div>
+          <div class="disease-chip-crop">Pulse</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">⚪</div>
+        <div>
+          <div class="disease-chip-name">Powdery Mildew</div>
+          <div class="disease-chip-crop">Pulse</div>
+        </div>
+      </div>
+      <div class="disease-chip">
+        <div class="disease-chip-icon">🟢</div>
+        <div>
+          <div class="disease-chip-name">Healthy Leaf</div>
+          <div class="disease-chip-crop">All Crops</div>
+        </div>
+      </div>
+      <div class="disease-chip" style="opacity:0.5;border-style:dashed;">
+        <div class="disease-chip-icon">➕</div>
+        <div>
+          <div class="disease-chip-name">More coming...</div>
+          <div class="disease-chip-crop">Expanding dataset</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== MODEL INFO ======== -->
+<section class="section" id="model">
+  <div class="container">
+    <div class="model-section animate-on-scroll">
+      <div style="max-width:600px;">
+        <div class="section-eyebrow" style="text-align:left;">Under the Hood</div>
+        <h2 class="section-title" style="text-align:left;margin-bottom:16px;">EfficientNetB2 Architecture</h2>
+        <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:20px;">
+          Our model is built on <strong style="color:var(--text-primary);">EfficientNetB2</strong> with Transfer Learning — pretrained on ImageNet and fine-tuned on a curated crop disease dataset. Convolutional Neural Networks (CNN) extract spatial features from leaf images, identifying disease patterns invisible to the naked eye.
+        </p>
+        <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:24px;">
+          The architecture uses compound scaling to balance network depth, width, and resolution — achieving superior accuracy with fewer parameters compared to traditional models like VGG or ResNet.
+        </p>
+
+        <div class="model-tags">
+          <span class="model-tag">EfficientNetB2</span>
+          <span class="model-tag">Transfer Learning</span>
+          <span class="model-tag">CNN</span>
+          <span class="model-tag">Deep Learning</span>
+          <span class="model-tag">Image Classification</span>
+          <span class="model-tag">Multi-class Detection</span>
+          <span class="model-tag">95%+ Accuracy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== CTA ======== -->
+<section class="section">
+  <div class="container">
+    <div class="cta-strip animate-on-scroll">
+      <div class="cta-title">Start Protecting Your Crops Today</div>
+      <p class="cta-desc">Join thousands of farmers using AI for smarter crop management</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="signup.html" class="btn btn-primary btn-lg" style="background:rgba(255,255,255,0.15);color:#fff;border:2px solid rgba(255,255,255,0.3);">
+          🌾 Create Free Account
+        </a>
+        <a href="login.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.4);color:#fff;">
+          Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== FOOTER ======== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div style="color:var(--text-muted);font-size:0.85rem;">
+        © 2025 CropSense AI — Rice & Pulse Disease Detection Platform
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- CHATBOT -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="Chat with CropBot">🤖</button>
+  <div id="chatbot-panel" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online · Agriculture Expert</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()" title="Clear">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()">✕</button>
+      </div>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('What is Rice Blast disease?')">🌾 Rice Blast</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How to treat Brown Spot?')">💊 Treatments</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How does EfficientNetB2 work?')">🧠 AI Model</span>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask about crop diseases..." rows="1"></textarea>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+// Generate floating particles
+const particles = document.getElementById('particles');
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.cssText = `
+    left: ${Math.random()*100}%;
+    font-size: ${0.6 + Math.random()*1.2}rem;
+    animation-duration: ${8 + Math.random()*14}s;
+    animation-delay: ${Math.random()*10}s;
+  `;
+  p.textContent = ['🌿','🍃','🌱','🌾','🍀'][Math.floor(Math.random()*5)];
+  particles.appendChild(p);
+}
+</script>
+<script src="../js/chatbot.js"></script>
+</body>
+</html>
