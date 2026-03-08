@@ -1,15 +1,9 @@
 // ============================================================
-// predict-firebase.js — Prediction with Firestore Storage
+// predict-supabase.js — Prediction with Supabase Storage
 // ============================================================
 
-import { db, storage } from "./firebase-config.js";
-import {
-  collection, addDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  ref, uploadString, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import { requireAuth, showToast } from "./auth-firebase.js";
+import { supabase } from "./supabase-config.js";
+import { requireAuth, showToast } from "./auth-supabase.js";
 
 let currentFile = null;
 let currentUser = null;
@@ -29,26 +23,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadSidebarUser(profile) {
   if (!profile) return;
-  const nameEl  = document.getElementById('sidebar-user-name');
-  const emailEl = document.getElementById('sidebar-user-email');
+  const nameEl   = document.getElementById('sidebar-user-name');
+  const emailEl  = document.getElementById('sidebar-user-email');
   const avatarEl = document.getElementById('sidebar-avatar');
-  if (nameEl)  nameEl.textContent  = `${profile.firstName} ${profile.lastName}`;
+  if (nameEl)  nameEl.textContent  = `${profile.first_name} ${profile.last_name}`;
   if (emailEl) emailEl.textContent = profile.email;
   if (avatarEl) {
-    avatarEl.innerHTML = profile.avatar
-      ? `<img src="${profile.avatar}" alt="${profile.firstName}">`
-      : profile.firstName.charAt(0).toUpperCase();
+    avatarEl.innerHTML = profile.avatar_url
+      ? `<img src="${profile.avatar_url}" alt="${profile.first_name}">`
+      : profile.first_name.charAt(0).toUpperCase();
   }
 }
 
 // ============================================================
-// PREDICT PAGE LOGIC
+// PREDICT PAGE
 // ============================================================
 function initPredictPage() {
   const uploadZone = document.getElementById('upload-zone');
   const fileInput  = document.getElementById('file-input');
   const analyzeBtn = document.getElementById('analyze-btn');
-
   if (!uploadZone) return;
 
   uploadZone.addEventListener('click', (e) => {
@@ -60,10 +53,7 @@ function initPredictPage() {
     if (fileInput.files[0]) handleFile(fileInput.files[0]);
   });
 
-  uploadZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadZone.classList.add('dragover');
-  });
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
   uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
@@ -75,14 +65,8 @@ function initPredictPage() {
 }
 
 function handleFile(file) {
-  if (!file.type.startsWith('image/')) {
-    showToast('Please upload a valid image file.', 'error');
-    return;
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    showToast('Image too large. Max 10MB.', 'error');
-    return;
-  }
+  if (!file.type.startsWith('image/')) { showToast('Please upload a valid image file.', 'error'); return; }
+  if (file.size > 10 * 1024 * 1024)   { showToast('Image too large. Max 10MB.', 'error'); return; }
   currentFile = file;
   const reader = new FileReader();
   reader.onload = (e) => renderImagePreview(e.target.result, file.name);
@@ -106,20 +90,13 @@ function renderImagePreview(src, filename) {
       <span style="font-size:1.2rem;">🖼️</span>
       <div>
         <div style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">${filename}</div>
-        <div style="font-size:0.78rem;color:var(--text-muted);">${(currentFile.size/1024).toFixed(1)} KB · ${currentFile.type}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">${(currentFile.size/1024).toFixed(1)} KB</div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 window.replaceImage = () => document.getElementById('file-input').click();
-
-window.removeImage = () => {
-  currentFile = null;
-  resetUploadZone();
-  resetResult();
-  document.getElementById('analyze-btn').disabled = true;
-};
+window.removeImage  = () => { currentFile = null; resetUploadZone(); resetResult(); document.getElementById('analyze-btn').disabled = true; };
 
 function resetUploadZone() {
   const zone = document.getElementById('upload-zone');
@@ -130,12 +107,9 @@ function resetUploadZone() {
     <p class="upload-hint">or click to browse from your device</p>
     <button class="btn btn-outline" onclick="document.getElementById('file-input').click(); event.stopPropagation();">📁 Choose Image</button>
     <div class="upload-formats">
-      <span class="format-badge">JPG</span>
-      <span class="format-badge">PNG</span>
-      <span class="format-badge">WEBP</span>
-      <span class="format-badge">Max 10MB</span>
-    </div>
-  `;
+      <span class="format-badge">JPG</span><span class="format-badge">PNG</span>
+      <span class="format-badge">WEBP</span><span class="format-badge">Max 10MB</span>
+    </div>`;
 }
 
 function resetResult() {
@@ -143,33 +117,29 @@ function resetResult() {
     <div class="result-placeholder">
       <div class="placeholder-icon">🔬</div>
       <p>Upload a leaf image and click<br><strong>Analyze Now</strong> to detect diseases</p>
-    </div>
-  `;
+    </div>`;
   document.getElementById('result-header-title').textContent = 'Detection Result';
   document.getElementById('save-btn').style.display = 'none';
 }
 
-async function runAnalysis() {
+window.runAnalysis = async function() {
   if (!currentFile) { showToast('Please upload a leaf image first.', 'error'); return; }
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Analyzing...';
   showAnalyzingState();
-
   try {
     const result = await window.CropModel.runDemoModel(currentFile);
     renderResult(result);
     btn.innerHTML = '🔬 Analyze Again';
     btn.disabled = false;
   } catch (err) {
-    showToast('Analysis failed. Please try again.', 'error');
+    showToast('Analysis failed. Try again.', 'error');
     btn.innerHTML = '🔬 Analyze Now';
     btn.disabled = false;
     resetResult();
   }
-}
-
-window.runAnalysis = runAnalysis;
+};
 
 function showAnalyzingState() {
   document.getElementById('result-body').innerHTML = `
@@ -179,8 +149,7 @@ function showAnalyzingState() {
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">Running EfficientNetB2 model</div>
       <div class="progress-bar"><div class="progress-fill" id="scan-progress" style="width:0%"></div></div>
       <div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;" id="scan-step">Loading model weights...</div>
-    </div>
-  `;
+    </div>`;
   const steps = [[20,'Preprocessing image...'],[45,'Extracting features...'],[70,'Running CNN layers...'],[88,'Classifying disease...'],[95,'Generating results...']];
   let i = 0;
   const iv = setInterval(() => {
@@ -207,10 +176,7 @@ function renderResult(result) {
     <div class="result-crop">${disease.crop} · <em>${disease.scientificName}</em></div>
     <span class="badge ${severityBadge(disease.severity)}" style="margin-bottom:20px;">⚠️ Severity: ${disease.severity}</span>
     <div class="result-accuracy">
-      <div class="accuracy-label">
-        <span>Confidence Score</span>
-        <span class="accuracy-value">${fmtPct(conf)}</span>
-      </div>
+      <div class="accuracy-label"><span>Confidence Score</span><span class="accuracy-value">${fmtPct(conf)}</span></div>
       <div class="progress-bar"><div class="progress-fill" style="width:${conf*100}%"></div></div>
     </div>
     <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.65;margin-bottom:16px;">${disease.description}</div>
@@ -233,16 +199,14 @@ function renderResult(result) {
           <div class="pred-name">${p.disease.name}</div>
           <div class="pred-bar"><div class="progress-bar" style="height:5px;"><div class="progress-fill" style="width:${p.confidence*100}%;background:${p.disease.color}99"></div></div></div>
           <div class="pred-pct">${fmtPct(p.confidence)}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+        </div>`).join('')}
+    </div>`;
 
   window._lastResult = { result, file: currentFile };
 }
 
 // ============================================================
-// SAVE PREDICTION TO FIRESTORE
+// SAVE PREDICTION TO SUPABASE
 // ============================================================
 window.savePrediction = async function() {
   if (!window._lastResult || !currentUser) return;
@@ -252,28 +216,36 @@ window.savePrediction = async function() {
   btn.innerHTML = '<span class="spinner"></span> Saving...';
 
   try {
-    // Upload thumbnail to Firebase Storage
-    const previewImg = document.getElementById('preview-img');
+    // Upload thumbnail to Supabase Storage
     let thumbnailUrl = null;
-    if (previewImg) {
-      const storageRef = ref(storage, `predictions/${currentUser.uid}/${Date.now()}.jpg`);
-      await uploadString(storageRef, previewImg.src, 'data_url');
-      thumbnailUrl = await getDownloadURL(storageRef);
+    if (currentFile) {
+      const fileName = `${currentUser.id}/${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from('predictions')
+        .upload(fileName, currentFile, { upsert: true });
+
+      if (!uploadError) {
+        const { data } = supabase.storage.from('predictions').getPublicUrl(fileName);
+        thumbnailUrl = data.publicUrl;
+      }
     }
 
-    // Save to Firestore under users/{uid}/predictions collection
-    await addDoc(collection(db, 'users', currentUser.uid, 'predictions'), {
-      disease:    result.primary.disease.name,
-      crop:       result.primary.disease.crop,
-      confidence: result.primary.confidence,
-      severity:   result.primary.disease.severity,
-      model:      result.model,
-      thumbnail:  thumbnailUrl,
-      createdAt:  serverTimestamp(),
+    // Save prediction to Supabase DB
+    const { error } = await supabase.from('predictions').insert({
+      user_id:       currentUser.id,
+      disease:       result.primary.disease.name,
+      crop:          result.primary.disease.crop,
+      confidence:    result.primary.confidence,
+      severity:      result.primary.disease.severity,
+      model:         result.model,
+      thumbnail_url: thumbnailUrl,
     });
+
+    if (error) throw error;
 
     showToast('Prediction saved to history! ✓', 'success');
     btn.innerHTML = '✓ Saved';
+
   } catch (err) {
     console.error(err);
     showToast('Failed to save. Try again.', 'error');

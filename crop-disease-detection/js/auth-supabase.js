@@ -1,25 +1,13 @@
 // ============================================================
-// auth-firebase.js — Firebase Authentication & User Storage
+// auth-supabase.js — Login, Signup, Session via Supabase
 // ============================================================
 
-import { auth, db, storage } from "./firebase-config.js";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  doc, setDoc, getDoc, updateDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  ref, uploadDataUrl, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { supabase } from "./supabase-config.js";
 
 // ============================================================
-// TOAST NOTIFICATIONS
+// TOAST
 // ============================================================
-function showToast(message, type = 'success') {
+export function showToast(message, type = 'success') {
   const container = document.getElementById('toast-container');
   if (!container) return;
   const toast = document.createElement('div');
@@ -50,40 +38,34 @@ function setError(input, message) {
 // PASSWORD VALIDATION
 // ============================================================
 const PASSWORD_RULES = [
-  { id: 'req-upper',  regex: /[A-Z]/,  label: 'Uppercase letter' },
-  { id: 'req-lower',  regex: /[a-z]/,  label: 'Lowercase letter' },
-  { id: 'req-digit',  regex: /[0-9]/,  label: 'Digit (0-9)' },
-  { id: 'req-symbol', regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/, label: 'Special symbol' },
-  { id: 'req-length', regex: /.{8,}/,  label: 'Min 8 characters' },
+  { id: 'req-upper',  regex: /[A-Z]/  },
+  { id: 'req-lower',  regex: /[a-z]/  },
+  { id: 'req-digit',  regex: /[0-9]/  },
+  { id: 'req-symbol', regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/ },
+  { id: 'req-length', regex: /.{8,}/  },
 ];
 
 function validatePassword(password) {
   return PASSWORD_RULES.every(r => r.regex.test(password));
 }
 
-function updatePasswordUI(password, strengthBarId, reqContainerId) {
+export function updatePasswordUI(password, strengthBarId) {
   const score = PASSWORD_RULES.filter(r => r.regex.test(password)).length;
   const segments = document.querySelectorAll(`#${strengthBarId} .strength-segment`);
-  let level = score >= 4 ? 'strong' : score >= 2 ? 'fair' : 'weak';
-
+  const level = score >= 4 ? 'strong' : score >= 2 ? 'fair' : 'weak';
   const labelEl = document.querySelector(`#${strengthBarId} ~ .strength-label`);
-  if (labelEl) labelEl.textContent = password.length > 0 ? `Strength: ${level.charAt(0).toUpperCase() + level.slice(1)}` : '';
-
+  if (labelEl) labelEl.textContent = password.length > 0 ? `Strength: ${level.charAt(0).toUpperCase()+level.slice(1)}` : '';
   segments.forEach((seg, i) => {
     seg.className = 'strength-segment';
     if (i < score) seg.classList.add('filled', level);
   });
-
   PASSWORD_RULES.forEach(rule => {
     const el = document.getElementById(rule.id);
-    if (el) {
-      el.classList.toggle('met', rule.regex.test(password));
-      el.classList.toggle('unmet', !rule.regex.test(password));
-    }
+    if (el) { el.classList.toggle('met', rule.regex.test(password)); el.classList.toggle('unmet', !rule.regex.test(password)); }
   });
 }
 
-function togglePasswordVisibility(inputId, btnId) {
+export function togglePasswordVisibility(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
   if (!input || !btn) return;
@@ -92,7 +74,7 @@ function togglePasswordVisibility(inputId, btnId) {
 }
 
 // ============================================================
-// PROFILE PICTURE UPLOAD PREVIEW
+// AVATAR UPLOAD PREVIEW
 // ============================================================
 function initAvatarUpload(inputId, previewId) {
   const input = document.getElementById(inputId);
@@ -109,66 +91,64 @@ function initAvatarUpload(inputId, previewId) {
 }
 
 // ============================================================
-// UPLOAD AVATAR TO FIREBASE STORAGE
+// UPLOAD AVATAR TO SUPABASE STORAGE
 // ============================================================
-async function uploadAvatar(userId, dataUrl) {
-  if (!dataUrl) return null;
+async function uploadAvatar(userId, file) {
+  if (!file) return null;
   try {
-    const storageRef = ref(storage, `avatars/${userId}.jpg`);
-    // Use uploadString for base64 data URLs
-    const { uploadString, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js");
-    await uploadString(storageRef, dataUrl, 'data_url');
-    const url = await getDownloadURL(storageRef);
-    return url;
+    const ext = file.name.split('.').pop();
+    const path = `avatars/${userId}.${ext}`;
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (error) throw error;
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    return data.publicUrl;
   } catch (err) {
-    console.warn('Avatar upload failed:', err);
+    console.warn('Avatar upload failed:', err.message);
     return null;
   }
 }
 
 // ============================================================
-// GET CURRENT USER FROM FIRESTORE
+// GET CURRENT SESSION & USER PROFILE
 // ============================================================
-async function fetchUserProfile(uid) {
-  const snap = await getDoc(doc(db, 'users', uid));
-  return snap.exists() ? snap.data() : null;
+export async function getCurrentSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
 }
 
-// Save user profile to session
-function cacheUser(userData) {
-  sessionStorage.setItem('cropUser', JSON.stringify(userData));
-}
-
-function getCachedUser() {
-  return JSON.parse(sessionStorage.getItem('cropUser') || 'null');
+export async function getUserProfile(userId) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
+  if (error) return null;
+  return data;
 }
 
 // ============================================================
-// AUTH STATE OBSERVER — call on protected pages
+// REQUIRE AUTH — redirect if not logged in
 // ============================================================
-function requireAuth(callback) {
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'login.html';
-      return;
-    }
-    let profile = getCachedUser();
-    if (!profile || profile.uid !== user.uid) {
-      profile = await fetchUserProfile(user.uid);
-      if (profile) cacheUser(profile);
-    }
-    if (callback) callback(user, profile);
-  });
+export async function requireAuth(callback) {
+  const session = await getCurrentSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const profile = await getUserProfile(session.user.id);
+  if (callback) callback(session.user, profile);
 }
 
 // ============================================================
 // LOGOUT
 // ============================================================
-async function logout() {
-  await signOut(auth);
-  sessionStorage.removeItem('cropUser');
+export async function logout() {
+  await supabase.auth.signOut();
   window.location.href = 'login.html';
 }
+
+// Make logout available globally
+window.logout = logout;
 
 // ============================================================
 // LOGIN PAGE
@@ -177,7 +157,7 @@ function initLoginPage() {
   const form = document.getElementById('login-form');
   if (!form) return;
 
-  const emailInput = document.getElementById('login-email');
+  const emailInput    = document.getElementById('login-email');
   const passwordInput = document.getElementById('login-password');
 
   emailInput.addEventListener('blur', () => {
@@ -194,14 +174,12 @@ function initLoginPage() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = emailInput.value.trim();
+    const email    = emailInput.value.trim();
     const password = passwordInput.value;
     let valid = true;
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(emailInput, 'Enter a valid email.'); valid = false; }
-    else setValid(emailInput);
-    if (!password) { setError(passwordInput, 'Password is required.'); valid = false; }
-    else setValid(passwordInput);
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(emailInput, 'Enter a valid email.'); valid = false; } else setValid(emailInput);
+    if (!password) { setError(passwordInput, 'Password is required.'); valid = false; } else setValid(passwordInput);
     if (!valid) return;
 
     const btn = form.querySelector('[type=submit]');
@@ -209,19 +187,17 @@ function initLoginPage() {
     btn.innerHTML = '<span class="spinner"></span> Signing in...';
 
     try {
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const profile = await fetchUserProfile(userCred.user.uid);
-      cacheUser(profile);
-      showToast(`Welcome back, ${profile.firstName}!`, 'success');
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      const profile = await getUserProfile(data.user.id);
+      showToast(`Welcome back, ${profile?.first_name || 'User'}!`, 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = 'Sign In';
-      const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'
-        ? 'Invalid email or password.'
-        : err.code === 'auth/user-not-found'
-        ? 'No account found with this email.'
-        : 'Sign in failed. Try again.';
+      const msg = err.message.includes('Invalid') ? 'Invalid email or password.' : err.message;
       setError(passwordInput, msg);
       showToast(msg, 'error');
     }
@@ -246,19 +222,11 @@ function initSignupPage() {
     confirm:   document.getElementById('signup-confirm'),
   };
 
-  fields.password.addEventListener('input', () => {
-    updatePasswordUI(fields.password.value, 'strength-bar', 'pw-requirements');
-  });
+  fields.password.addEventListener('input', () => updatePasswordUI(fields.password.value, 'strength-bar'));
 
   // Blur validations
-  fields.firstName.addEventListener('blur', () => {
-    if (!fields.firstName.value.trim()) setError(fields.firstName, 'First name is required.');
-    else setValid(fields.firstName);
-  });
-  fields.lastName.addEventListener('blur', () => {
-    if (!fields.lastName.value.trim()) setError(fields.lastName, 'Last name is required.');
-    else setValid(fields.lastName);
-  });
+  fields.firstName.addEventListener('blur', () => { if (!fields.firstName.value.trim()) setError(fields.firstName, 'First name is required.'); else setValid(fields.firstName); });
+  fields.lastName.addEventListener('blur',  () => { if (!fields.lastName.value.trim())  setError(fields.lastName,  'Last name is required.');  else setValid(fields.lastName); });
   fields.email.addEventListener('blur', () => {
     const v = fields.email.value.trim();
     if (!v) setError(fields.email, 'Email is required.');
@@ -308,29 +276,26 @@ function initSignupPage() {
     btn.innerHTML = '<span class="spinner"></span> Creating Account...';
 
     try {
-      // 1. Create Firebase Auth user
-      const userCred = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = userCred.user.uid;
+      // 1. Create Supabase Auth user
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      const userId = data.user.id;
 
-      // 2. Upload avatar to Firebase Storage
-      const avatarPreviewImg = document.querySelector('#avatar-preview img');
-      const avatarUrl = avatarPreviewImg
-        ? await uploadAvatar(uid, avatarPreviewImg.src)
-        : null;
+      // 2. Upload avatar to Supabase Storage
+      const avatarInput = document.getElementById('avatar-input');
+      const avatarFile  = avatarInput?.files[0] || null;
+      const avatarUrl   = avatarFile ? await uploadAvatar(userId, avatarFile) : null;
 
-      // 3. Save profile to Firestore
-      const userData = {
-        uid,
-        firstName: fields.firstName.value.trim(),
-        lastName:  fields.lastName.value.trim(),
+      // 3. Save profile to users table
+      const { error: dbError } = await supabase.from('users').insert({
+        id:         userId,
         email,
+        first_name: fields.firstName.value.trim(),
+        last_name:  fields.lastName.value.trim(),
         mobile,
-        avatar: avatarUrl || null,
-        createdAt: serverTimestamp(),
-      };
-
-      await setDoc(doc(db, 'users', uid), userData);
-      cacheUser({ ...userData, createdAt: new Date().toISOString() });
+        avatar_url: avatarUrl,
+      });
+      if (dbError) throw dbError;
 
       showToast('Account created! Redirecting...', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
@@ -338,13 +303,9 @@ function initSignupPage() {
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = '🌿 Create Account';
-      const msg = err.code === 'auth/email-already-in-use'
-        ? 'This email is already registered. Please login.'
-        : err.code === 'auth/weak-password'
-        ? 'Password is too weak.'
-        : 'Sign up failed. Please try again.';
+      const msg = err.message.includes('already registered') ? 'Email already registered. Please login.' : err.message;
       showToast(msg, 'error');
-      if (err.code === 'auth/email-already-in-use') setError(fields.email, msg);
+      if (err.message.includes('already registered')) setError(fields.email, msg);
     }
   });
 }
@@ -356,6 +317,3 @@ document.addEventListener('DOMContentLoaded', () => {
   initLoginPage();
   initSignupPage();
 });
-
-// Export for use in other files
-export { requireAuth, logout, fetchUserProfile, getCachedUser, showToast };

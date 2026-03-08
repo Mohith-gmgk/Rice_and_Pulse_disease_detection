@@ -1,12 +1,9 @@
 // ============================================================
-// dashboard-firebase.js — Dashboard with Firestore Data
+// dashboard-supabase.js — Dashboard with Supabase Data
 // ============================================================
 
-import { db } from "./firebase-config.js";
-import {
-  collection, getDocs, deleteDoc, doc, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { requireAuth, logout, showToast } from "./auth-firebase.js";
+import { supabase } from "./supabase-config.js";
+import { requireAuth, logout, showToast } from "./auth-supabase.js";
 
 let currentUser = null;
 
@@ -17,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   requireAuth(async (user, profile) => {
     currentUser = user;
     loadSidebarUser(profile);
-    await loadDashboard(user.uid);
+    await loadDashboard(user.id);
   });
 });
 
@@ -26,33 +23,35 @@ function loadSidebarUser(profile) {
   const nameEl   = document.getElementById('sidebar-user-name');
   const emailEl  = document.getElementById('sidebar-user-email');
   const avatarEl = document.getElementById('sidebar-avatar');
-  if (nameEl)  nameEl.textContent  = `${profile.firstName} ${profile.lastName}`;
+  if (nameEl)  nameEl.textContent  = `${profile.first_name} ${profile.last_name}`;
   if (emailEl) emailEl.textContent = profile.email;
   if (avatarEl) {
-    avatarEl.innerHTML = profile.avatar
-      ? `<img src="${profile.avatar}" alt="${profile.firstName}">`
-      : profile.firstName.charAt(0).toUpperCase();
+    avatarEl.innerHTML = profile.avatar_url
+      ? `<img src="${profile.avatar_url}" alt="${profile.first_name}">`
+      : profile.first_name.charAt(0).toUpperCase();
   }
 }
 
 // ============================================================
-// LOAD DASHBOARD DATA FROM FIRESTORE
+// LOAD PREDICTIONS FROM SUPABASE
 // ============================================================
-async function loadDashboard(uid) {
+async function loadDashboard(userId) {
   try {
-    const q = query(
-      collection(db, 'users', uid, 'predictions'),
-      orderBy('createdAt', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    const predictions = snapshot.docs.map(d => ({ id: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate?.() || new Date() }));
+    const { data: predictions, error } = await supabase
+      .from('predictions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-    updateStats(predictions);
-    renderHistory(predictions);
-    renderRecent(predictions.slice(0, 3));
-    setTimeout(() => renderCharts(predictions), 100);
+    if (error) throw error;
+
+    updateStats(predictions || []);
+    renderHistory(predictions || []);
+    renderRecent((predictions || []).slice(0, 3));
+    setTimeout(() => renderCharts(predictions || []), 100);
+
   } catch (err) {
-    console.error('Failed to load dashboard:', err);
+    console.error(err);
     showToast('Failed to load history.', 'error');
   }
 }
@@ -62,7 +61,7 @@ async function loadDashboard(uid) {
 // ============================================================
 function updateStats(predictions) {
   setVal('stat-total', predictions.length);
-  setVal('stat-today', predictions.filter(p => isToday(p.createdAt)).length);
+  setVal('stat-today', predictions.filter(p => isToday(new Date(p.created_at))).length);
   setVal('stat-diseases', new Set(predictions.map(p => p.disease)).size);
   const avg = predictions.length
     ? (predictions.reduce((a, b) => a + b.confidence, 0) / predictions.length * 100).toFixed(0) + '%'
@@ -80,8 +79,8 @@ function isToday(date) {
   return date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear();
 }
 
-function formatDate(date) {
-  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 function severityBadgeClass(severity) {
@@ -109,8 +108,8 @@ function renderHistory(predictions) {
   tbody.innerHTML = predictions.map(p => `
     <tr>
       <td>
-        ${p.thumbnail
-          ? `<img class="history-thumb" src="${p.thumbnail}" alt="${p.disease}">`
+        ${p.thumbnail_url
+          ? `<img class="history-thumb" src="${p.thumbnail_url}" alt="${p.disease}">`
           : `<div class="history-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌿</div>`
         }
       </td>
@@ -127,7 +126,7 @@ function renderHistory(predictions) {
           <span style="font-size:0.82rem;color:var(--green-light);font-weight:600;">${(p.confidence*100).toFixed(1)}%</span>
         </div>
       </td>
-      <td style="font-size:0.82rem;color:var(--text-secondary);">${formatDate(p.createdAt)}</td>
+      <td style="font-size:0.82rem;color:var(--text-secondary);">${formatDate(p.created_at)}</td>
       <td>
         <button class="btn btn-danger btn-sm" onclick="deletePrediction('${p.id}')">🗑 Delete</button>
       </td>
@@ -149,8 +148,8 @@ function renderRecent(predictions) {
 
   container.innerHTML = predictions.map(p => `
     <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-      ${p.thumbnail
-        ? `<img style="width:40px;height:40px;border-radius:8px;object-fit:cover;" src="${p.thumbnail}">`
+      ${p.thumbnail_url
+        ? `<img style="width:40px;height:40px;border-radius:8px;object-fit:cover;" src="${p.thumbnail_url}">`
         : `<div style="width:40px;height:40px;border-radius:8px;background:var(--bg-card2);display:flex;align-items:center;justify-content:center;">🌿</div>`
       }
       <div style="flex:1;">
@@ -163,39 +162,36 @@ function renderRecent(predictions) {
 }
 
 // ============================================================
-// DELETE PREDICTION FROM FIRESTORE
+// DELETE PREDICTION
 // ============================================================
 window.deletePrediction = async function(predId) {
   if (!currentUser) return;
   try {
-    await deleteDoc(doc(db, 'users', currentUser.uid, 'predictions', predId));
+    const { error } = await supabase.from('predictions').delete().eq('id', predId);
+    if (error) throw error;
     showToast('Prediction deleted.', 'success');
-    await loadDashboard(currentUser.uid);
+    await loadDashboard(currentUser.id);
   } catch (err) {
     showToast('Delete failed. Try again.', 'error');
   }
 };
 
 // ============================================================
-// CLEAR ALL PREDICTIONS
+// CLEAR ALL
 // ============================================================
 window.clearAllHistory = async function() {
   if (!currentUser) return;
   if (!confirm('Clear all prediction history? This cannot be undone.')) return;
   try {
-    const snapshot = await getDocs(collection(db, 'users', currentUser.uid, 'predictions'));
-    const deletes = snapshot.docs.map(d => deleteDoc(doc(db, 'users', currentUser.uid, 'predictions', d.id)));
-    await Promise.all(deletes);
+    const { error } = await supabase.from('predictions').delete().eq('user_id', currentUser.id);
+    if (error) throw error;
     showToast('History cleared.', 'success');
-    await loadDashboard(currentUser.uid);
+    await loadDashboard(currentUser.id);
   } catch (err) {
     showToast('Failed to clear history.', 'error');
   }
 };
 
-// ============================================================
-// LOGOUT
-// ============================================================
 window.logout = logout;
 
 // ============================================================
@@ -233,8 +229,9 @@ function renderCharts(predictions) {
     const counts = new Array(7).fill(0);
     const now = new Date();
     predictions.forEach(p => {
-      const diff = Math.floor((now - p.createdAt) / (1000*60*60*24));
-      if (diff < 7) counts[p.createdAt.getDay()]++;
+      const d = new Date(p.created_at);
+      const diff = Math.floor((now - d) / (1000*60*60*24));
+      if (diff < 7) counts[d.getDay()]++;
     });
     const today = now.getDay();
     new Chart(weekCanvas, {
