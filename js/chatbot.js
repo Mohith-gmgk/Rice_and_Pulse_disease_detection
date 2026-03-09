@@ -94,11 +94,18 @@ async function sendChatMessage() {
     });
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text || 'Sorry, I could not process that. Please try again.';
+    console.log('Chat API response:', data);
 
     // Remove loading bubble
     const loadingEl = document.getElementById('chat-loading');
     if (loadingEl) loadingEl.remove();
+
+    let reply = 'Sorry, I could not process that. Please try again.';
+    if (data.content && data.content[0] && data.content[0].text) {
+      reply = data.content[0].text;
+    } else if (data.error) {
+      reply = `Error: ${data.error.message || JSON.stringify(data.error)}`;
+    }
 
     appendMessage('assistant', reply);
     chatHistory.push({ role: 'assistant', content: reply });
@@ -107,6 +114,7 @@ async function sendChatMessage() {
     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-16);
 
   } catch (err) {
+    console.error('Chatbot error:', err);
     const loadingEl = document.getElementById('chat-loading');
     if (loadingEl) loadingEl.remove();
     appendMessage('assistant', '⚠️ Connection error. Please check your internet and try again.');
