@@ -221,35 +221,53 @@ function renderCharts(predictions) {
     });
   }
 
-  const weekCanvas = document.getElementById('week-chart');
-  const noWeek = document.getElementById('no-week-chart');
-  if (weekCanvas && window.Chart) {
-    if (noWeek) noWeek.style.display = 'none';
-    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const counts = new Array(7).fill(0);
-    const now = new Date();
-    predictions.forEach(p => {
+  const confidenceCanvas = document.getElementById('confidence-chart');
+  const noConfidence = document.getElementById('no-week-chart');
+  if (confidenceCanvas && window.Chart) {
+    // Sort predictions by date ascending
+    const sorted = [...predictions].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const last15 = sorted.slice(-15); // last 15 predictions
+    if (last15.length < 1) return;
+    if (noConfidence) noConfidence.style.display = 'none';
+    const labels = last15.map((p, i) => {
       const d = new Date(p.created_at);
-      const diff = Math.floor((now - d) / (1000*60*60*24));
-      if (diff < 7) counts[d.getDay()]++;
+      return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
     });
-    const today = now.getDay();
-    new Chart(weekCanvas, {
-      type: 'bar',
+    const data = last15.map(p => parseFloat((p.confidence * 100).toFixed(1)));
+    new Chart(confidenceCanvas, {
+      type: 'line',
       data: {
-        labels: [...days.slice(today+1), ...days.slice(0, today+1)],
+        labels,
         datasets: [{
-          label: 'Predictions',
-          data: [...counts.slice(today+1), ...counts.slice(0, today+1)],
-          backgroundColor: 'rgba(45,181,103,0.3)', borderColor: '#2db567', borderWidth: 1.5, borderRadius: 6
+          label: 'Confidence %',
+          data,
+          borderColor: '#2db567',
+          backgroundColor: 'rgba(45,181,103,0.08)',
+          borderWidth: 2,
+          pointBackgroundColor: '#2db567',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.y}% confidence`
+            }
+          }
+        },
         scales: {
-          x: { ticks: { color: '#8ab89a', font: { size: 11 } }, grid: { display: false } },
-          y: { ticks: { color: '#8ab89a', font: { size: 11 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          x: { ticks: { color: '#8ab89a', font: { size: 10 } }, grid: { display: false } },
+          y: {
+            min: 0, max: 100,
+            ticks: { color: '#8ab89a', font: { size: 11 }, callback: v => v + '%' },
+            grid: { color: 'rgba(255,255,255,0.04)' }
+          }
         }
       }
     });
