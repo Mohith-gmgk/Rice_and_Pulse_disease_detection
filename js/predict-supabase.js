@@ -133,6 +133,7 @@ window.runAnalysis = async function() {
     renderResult(result);
     btn.innerHTML = '🔬 Analyze Again';
     btn.disabled = false;
+    await autoSavePrediction(result);
   } catch (err) {
     showToast('Analysis failed. Try again.', 'error');
     btn.innerHTML = '🔬 Analyze Now';
@@ -169,7 +170,7 @@ function renderResult(result) {
   const { fmtPct, severityBadge } = window.CropModel;
 
   document.getElementById('result-header-title').textContent = '✅ Result Ready';
-  document.getElementById('save-btn').style.display = 'inline-flex';
+  document.getElementById('save-btn').style.display = 'none';
 
   document.getElementById('result-body').innerHTML = `
     <div class="result-disease">${disease.name}</div>
@@ -206,14 +207,10 @@ function renderResult(result) {
 }
 
 // ============================================================
-// SAVE PREDICTION TO SUPABASE
+// AUTO SAVE PREDICTION TO SUPABASE
 // ============================================================
-window.savePrediction = async function() {
-  if (!window._lastResult || !currentUser) return;
-  const { result } = window._lastResult;
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Saving...';
+async function autoSavePrediction(result) {
+  if (!result || !currentUser) return;
 
   try {
     // Upload thumbnail to Supabase Storage
@@ -223,7 +220,6 @@ window.savePrediction = async function() {
       const { error: uploadError } = await supabase.storage
         .from('predictions')
         .upload(fileName, currentFile, { upsert: true });
-
       if (!uploadError) {
         const { data } = supabase.storage.from('predictions').getPublicUrl(fileName);
         thumbnailUrl = data.publicUrl;
@@ -243,13 +239,15 @@ window.savePrediction = async function() {
 
     if (error) throw error;
 
-    showToast('Prediction saved to history! ✓', 'success');
-    btn.innerHTML = '✓ Saved';
+    showToast('✅ Result saved to history automatically!', 'success');
 
   } catch (err) {
-    console.error(err);
-    showToast('Failed to save. Try again.', 'error');
-    btn.disabled = false;
-    btn.innerHTML = '💾 Save to History';
+    console.error('Auto-save failed:', err);
+    showToast('⚠️ Could not save to history.', 'error');
   }
+}
+
+// Keep for backward compat (button hidden but keep function)
+window.savePrediction = async function() {
+  if (window._lastResult) await autoSavePrediction(window._lastResult.result);
 };
