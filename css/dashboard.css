@@ -530,3 +530,32 @@ html, body {
   .charts-grid { grid-template-columns: 1fr; }
   .bottom-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Predict Page Specific ---- */
+.predict-left {
+  width: 100%;
+  min-width: 0;
+}
+
+.analyze-btn-wrap {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.analyze-full-btn {
+  flex: 1;
+  width: 100%;
+}
+
+.crops-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.crop-item {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}

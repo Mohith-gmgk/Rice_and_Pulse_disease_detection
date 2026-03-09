@@ -7,23 +7,6 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/chatbot.css">
-  <style>
-  .app-layout {
-    display: grid !important;
-    grid-template-columns: 260px 1fr !important;
-    min-height: 100vh !important;
-  }
-  .main-content {
-    padding: 32px !important;
-    overflow-y: auto !important;
-    word-break: normal !important;
-    white-space: normal !important;
-  }
-  .sidebar {
-    position: fixed !important;
-    width: 260px !important;
-  }
-  </style>
 </head>
 <body>
 
@@ -35,7 +18,6 @@
       <div class="logo-icon">🌿</div>
       CropSense<span style="color:var(--gold)">AI</span>
     </a>
-
     <nav class="sidebar-nav">
       <div class="sidebar-section-label">Main</div>
       <a href="dashboard.html">
@@ -44,7 +26,6 @@
       <a href="predict.html" class="active">
         <span class="nav-icon">🔬</span> Detect Disease
       </a>
-
       <div class="sidebar-section-label">Account</div>
       <a href="index.html">
         <span class="nav-icon">🏠</span> Home
@@ -53,7 +34,6 @@
         <span class="nav-icon">🚪</span> Sign Out
       </a>
     </nav>
-
     <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
@@ -69,24 +49,23 @@
   <main class="main-content">
 
     <div class="page-header">
-      <h1 class="page-title">🔬 Detect Disease</h1>
-      <p class="page-subtitle">Upload a leaf image for AI-powered disease detection using EfficientNetB2</p>
+      <div>
+        <h1 class="page-title">🔬 Detect Disease</h1>
+        <p class="page-subtitle">Upload a leaf image for AI-powered disease detection using EfficientNetB2</p>
+      </div>
     </div>
 
     <!-- Tips bar -->
     <div class="alert alert-warning" style="margin-bottom:28px;">
       <span>💡</span>
-      <span>
-        <strong>Tips for best results:</strong> Use a clear, well-lit photo of the affected leaf. 
-        Avoid blurry images. Capture the full leaf including disease spots.
-      </span>
+      <span><strong>Tips for best results:</strong> Use a clear, well-lit photo of the affected leaf. Avoid blurry images. Capture the full leaf including disease spots.</span>
     </div>
 
+    <!-- Predict Layout -->
     <div class="predict-layout">
 
       <!-- LEFT: Upload -->
-      <div>
-        <!-- Upload zone -->
+      <div class="predict-left">
         <input type="file" id="file-input" accept="image/*" style="display:none;">
 
         <div id="upload-zone" class="upload-zone">
@@ -105,33 +84,33 @@
         </div>
 
         <!-- Analyze button -->
-        <div style="display:flex;gap:12px;margin-top:20px;">
-          <button id="analyze-btn" class="btn btn-primary btn-lg" style="flex:1;" disabled onclick="runAnalysis()">
+        <div class="analyze-btn-wrap">
+          <button id="analyze-btn" class="btn btn-primary btn-lg analyze-full-btn" disabled onclick="runAnalysis()">
             🔬 Analyze Now
           </button>
         </div>
 
-        <!-- Supported crops info -->
+        <!-- Supported crops -->
         <div class="card" style="margin-top:24px;">
-          <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:14px;">🌾 Supported Crops & Diseases</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🔴 Rice Blast</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🟤 Brown Spot</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🟡 Leaf Blight</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🔶 Tungro Virus</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🟠 Sheath Blight</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🔴 Cassava Mosaic</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">🟤 Fusarium Wilt</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);">⚪ Powdery Mildew</div>
-            <div style="font-size:0.82rem;color:var(--green-light);">🟢 Healthy Leaf</div>
-            <div style="font-size:0.82rem;color:var(--text-muted);">+ More diseases</div>
+          <div class="card-title">🌾 Supported Crops & Diseases</div>
+          <div class="crops-grid">
+            <div class="crop-item">🔴 Rice Blast</div>
+            <div class="crop-item">🟤 Brown Spot</div>
+            <div class="crop-item">🟡 Leaf Blight</div>
+            <div class="crop-item">🔶 Tungro Virus</div>
+            <div class="crop-item">🟠 Sheath Blight</div>
+            <div class="crop-item">🔴 Cassava Mosaic</div>
+            <div class="crop-item">🟤 Fusarium Wilt</div>
+            <div class="crop-item">⚪ Powdery Mildew</div>
+            <div class="crop-item" style="color:var(--green-light)">🟢 Healthy Leaf</div>
+            <div class="crop-item" style="color:var(--text-muted)">+ More diseases</div>
           </div>
         </div>
       </div>
 
       <!-- RIGHT: Result -->
       <div class="result-card">
-        <div class="result-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="result-card-header">
           <span id="result-header-title">Detection Result</span>
           <button id="save-btn" class="btn btn-outline btn-sm" style="display:none;" onclick="savePrediction()">
             💾 Save to History
@@ -178,7 +157,6 @@
 </div>
 
 <div class="toast-container" id="toast-container"></div>
-
 <script src="../js/model.js"></script>
 <script src="../js/chatbot.js"></script>
 <script type="module" src="../js/predict-supabase.js"></script>
