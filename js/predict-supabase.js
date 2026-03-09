@@ -1,5 +1,5 @@
 // ============================================================
-// predict-supabase.js — Prediction with Supabase Storage
+// predict-supabase.js — Auto-save prediction after analysis
 // ============================================================
 
 import { supabase } from "./supabase-config.js";
@@ -36,13 +36,13 @@ function loadSidebarUser(profile) {
 }
 
 // ============================================================
-// PREDICT PAGE
+// PREDICT PAGE INIT
 // ============================================================
 function initPredictPage() {
   const uploadZone = document.getElementById('upload-zone');
   const fileInput  = document.getElementById('file-input');
   const analyzeBtn = document.getElementById('analyze-btn');
-  if (!uploadZone) return;
+  if (!uploadZone || !fileInput || !analyzeBtn) return;
 
   uploadZone.addEventListener('click', (e) => {
     if (e.target.closest('.img-action-btn')) return;
@@ -53,7 +53,10 @@ function initPredictPage() {
     if (fileInput.files[0]) handleFile(fileInput.files[0]);
   });
 
-  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
   uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
@@ -64,6 +67,9 @@ function initPredictPage() {
   analyzeBtn.addEventListener('click', runAnalysis);
 }
 
+// ============================================================
+// FILE HANDLING
+// ============================================================
 function handleFile(file) {
   if (!file.type.startsWith('image/')) { showToast('Please upload a valid image file.', 'error'); return; }
   if (file.size > 10 * 1024 * 1024)   { showToast('Image too large. Max 10MB.', 'error'); return; }
@@ -96,7 +102,12 @@ function renderImagePreview(src, filename) {
 }
 
 window.replaceImage = () => document.getElementById('file-input').click();
-window.removeImage  = () => { currentFile = null; resetUploadZone(); resetResult(); document.getElementById('analyze-btn').disabled = true; };
+window.removeImage  = () => {
+  currentFile = null;
+  resetUploadZone();
+  resetResult();
+  document.getElementById('analyze-btn').disabled = true;
+};
 
 function resetUploadZone() {
   const zone = document.getElementById('upload-zone');
@@ -113,15 +124,19 @@ function resetUploadZone() {
 }
 
 function resetResult() {
-  document.getElementById('result-body').innerHTML = `
+  const resultBody = document.getElementById('result-body');
+  const resultTitle = document.getElementById('result-header-title');
+  if (resultBody) resultBody.innerHTML = `
     <div class="result-placeholder">
       <div class="placeholder-icon">🔬</div>
       <p>Upload a leaf image and click<br><strong>Analyze Now</strong> to detect diseases</p>
     </div>`;
-  document.getElementById('result-header-title').textContent = 'Detection Result';
-  document.getElementById('save-btn').style.display = 'none';
+  if (resultTitle) resultTitle.textContent = 'Detection Result';
 }
 
+// ============================================================
+// ANALYSIS
+// ============================================================
 async function runAnalysis() {
   if (!currentFile) { showToast('Please upload a leaf image first.', 'error'); return; }
   const btn = document.getElementById('analyze-btn');
@@ -135,12 +150,13 @@ async function runAnalysis() {
     btn.disabled = false;
     await autoSavePrediction(result);
   } catch (err) {
+    console.error('Analysis error:', err);
     showToast('Analysis failed. Try again.', 'error');
     btn.innerHTML = '🔬 Analyze Now';
     btn.disabled = false;
     resetResult();
   }
-};
+}
 
 function showAnalyzingState() {
   document.getElementById('result-body').innerHTML = `
@@ -155,9 +171,9 @@ function showAnalyzingState() {
   let i = 0;
   const iv = setInterval(() => {
     if (i >= steps.length) { clearInterval(iv); return; }
-    const bar = document.getElementById('scan-progress');
+    const bar  = document.getElementById('scan-progress');
     const step = document.getElementById('scan-step');
-    if (bar) bar.style.width = steps[i][0] + '%';
+    if (bar)  bar.style.width  = steps[i][0] + '%';
     if (step) step.textContent = steps[i][1];
     i++;
   }, 280);
@@ -166,11 +182,11 @@ function showAnalyzingState() {
 function renderResult(result) {
   const { primary, topPredictions, model, inferenceTime } = result;
   const disease = primary.disease;
-  const conf = primary.confidence;
+  const conf    = primary.confidence;
   const { fmtPct, severityBadge } = window.CropModel;
 
-  document.getElementById('result-header-title').textContent = '✅ Result Ready';
-  document.getElementById('save-btn').style.display = 'none';
+  const titleEl = document.getElementById('result-header-title');
+  if (titleEl) titleEl.textContent = '✅ Result Ready';
 
   document.getElementById('result-body').innerHTML = `
     <div class="result-disease">${disease.name}</div>
@@ -207,13 +223,11 @@ function renderResult(result) {
 }
 
 // ============================================================
-// AUTO SAVE PREDICTION TO SUPABASE
+// AUTO SAVE TO SUPABASE
 // ============================================================
 async function autoSavePrediction(result) {
   if (!result || !currentUser) return;
-
   try {
-    // Upload thumbnail to Supabase Storage
     let thumbnailUrl = null;
     if (currentFile) {
       const fileName = `${currentUser.id}/${Date.now()}.jpg`;
@@ -226,7 +240,6 @@ async function autoSavePrediction(result) {
       }
     }
 
-    // Save prediction to Supabase DB
     const { error } = await supabase.from('predictions').insert({
       user_id:       currentUser.id,
       disease:       result.primary.disease.name,
@@ -238,7 +251,6 @@ async function autoSavePrediction(result) {
     });
 
     if (error) throw error;
-
     showToast('✅ Result saved to history automatically!', 'success');
 
   } catch (err) {
@@ -246,8 +258,3 @@ async function autoSavePrediction(result) {
     showToast('⚠️ Could not save to history.', 'error');
   }
 }
-
-// Keep for backward compat (button hidden but keep function)
-window.savePrediction = async function() {
-  if (window._lastResult) await autoSavePrediction(window._lastResult.result);
-};
