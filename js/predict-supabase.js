@@ -122,7 +122,7 @@ function resetResult() {
   document.getElementById('save-btn').style.display = 'none';
 }
 
-window.runAnalysis = async function() {
+async function runAnalysis() {
   if (!currentFile) { showToast('Please upload a leaf image first.', 'error'); return; }
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true;
