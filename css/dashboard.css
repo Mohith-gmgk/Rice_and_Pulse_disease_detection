@@ -1,14 +1,19 @@
 /* ============================================================
-   DASHBOARD & PREDICT PAGE STYLES
+   DASHBOARD & PREDICT PAGE STYLES — FIXED LAYOUT
    ============================================================ */
 
 /* ---- Sidebar Layout ---- */
-.app-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  min-height: 100vh;
+html, body {
+  margin: 0;
+  padding: 0;
   width: 100%;
   overflow-x: hidden;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .sidebar {
@@ -21,6 +26,7 @@
   flex-direction: column;
   overflow-y: auto;
   z-index: 100;
+  flex-shrink: 0;
 }
 
 .sidebar-logo {
@@ -129,15 +135,18 @@
   margin-left: 260px;
   padding: 32px;
   min-height: 100vh;
-  width: calc(100% - 260px);
-  max-width: calc(100% - 260px);
-  overflow-x: hidden;
+  flex: 1;
+  width: calc(100vw - 260px);
+  max-width: calc(100vw - 260px);
   box-sizing: border-box;
-  display: block;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .page-header {
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .page-title {
@@ -145,6 +154,8 @@
   font-size: 1.9rem;
   font-weight: 800;
   margin-bottom: 6px;
+  white-space: normal;
+  word-break: normal;
 }
 
 .page-subtitle {
@@ -169,6 +180,7 @@
   position: relative;
   overflow: hidden;
   transition: border-color 0.2s;
+  min-width: 0;
 }
 
 .stat-card:hover { border-color: rgba(45,181,103,0.3); }
@@ -181,10 +193,7 @@
   background: radial-gradient(circle, rgba(45,181,103,0.1) 0%, transparent 70%);
 }
 
-.stat-icon {
-  font-size: 1.5rem;
-  margin-bottom: 14px;
-}
+.stat-icon { font-size: 1.5rem; margin-bottom: 14px; }
 
 .stat-value {
   font-family: var(--font-display);
@@ -194,10 +203,7 @@
   margin-bottom: 4px;
 }
 
-.stat-label {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
+.stat-label { font-size: 0.82rem; color: var(--text-secondary); }
 
 .stat-change {
   font-size: 0.78rem;
@@ -216,6 +222,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  width: 100%;
 }
 
 .history-header {
@@ -287,6 +294,8 @@
   cursor: pointer;
   transition: all 0.25s;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .upload-zone:hover, .upload-zone.dragover {
@@ -321,7 +330,6 @@
   color: var(--text-muted);
 }
 
-/* Image preview in upload */
 .image-preview-container {
   position: relative;
   width: 100%;
@@ -353,22 +361,11 @@
   transition: all 0.2s;
 }
 
-.img-action-remove {
-  background: rgba(224,85,85,0.85);
-  color: #fff;
-}
-
+.img-action-remove { background: rgba(224,85,85,0.85); color: #fff; }
 .img-action-remove:hover { background: var(--red); transform: scale(1.05); }
-
-.img-action-replace {
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  backdrop-filter: blur(4px);
-}
-
+.img-action-replace { background: rgba(0,0,0,0.6); color: #fff; backdrop-filter: blur(4px); }
 .img-action-replace:hover { background: rgba(0,0,0,0.8); }
 
-/* Result card */
 .result-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -405,15 +402,9 @@
   margin-bottom: 6px;
 }
 
-.result-crop {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
+.result-crop { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
 
-.result-accuracy {
-  margin-bottom: 20px;
-}
+.result-accuracy { margin-bottom: 20px; }
 
 .accuracy-label {
   display: flex;
@@ -423,18 +414,9 @@
   color: var(--text-secondary);
 }
 
-.accuracy-value {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--green-light);
-}
+.accuracy-value { font-family: var(--font-display); font-weight: 700; color: var(--green-light); }
 
-.result-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 20px;
-}
+.result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
 
 .meta-item {
   background: rgba(255,255,255,0.03);
@@ -446,7 +428,6 @@
 .meta-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 .meta-value { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
 
-/* Top predictions */
 .top-predictions { margin-top: 20px; }
 .top-pred-title {
   font-size: 0.8rem;
@@ -465,9 +446,9 @@
   font-size: 0.85rem;
 }
 
-.pred-name { flex: 1; color: var(--text-secondary); }
+.pred-name { flex: 1; color: var(--text-secondary); min-width: 0; }
 .pred-pct { font-weight: 600; color: var(--text-primary); width: 42px; text-align: right; font-size: 0.82rem; }
-.pred-bar { flex: 2; }
+.pred-bar { flex: 2; min-width: 0; }
 
 /* ============================================================
    RESPONSIVE
@@ -478,8 +459,7 @@
 }
 
 @media (max-width: 900px) {
-  .app-layout { grid-template-columns: 1fr; }
   .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; padding: 20px 16px; }
+  .main-content { margin-left: 0; padding: 20px 16px; width: 100%; max-width: 100%; }
 }
