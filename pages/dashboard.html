@@ -8,23 +8,6 @@
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-  <style>
-  .app-layout {
-    display: grid !important;
-    grid-template-columns: 260px 1fr !important;
-    min-height: 100vh !important;
-  }
-  .main-content {
-    padding: 32px !important;
-    overflow-y: auto !important;
-    word-break: normal !important;
-    white-space: normal !important;
-  }
-  .sidebar {
-    position: fixed !important;
-    width: 260px !important;
-  }
-  </style>
 </head>
 <body>
 
@@ -36,7 +19,6 @@
       <div class="logo-icon">🌿</div>
       CropSense<span style="color:var(--gold)">AI</span>
     </a>
-
     <nav class="sidebar-nav">
       <div class="sidebar-section-label">Main</div>
       <a href="dashboard.html" class="active">
@@ -45,7 +27,6 @@
       <a href="predict.html">
         <span class="nav-icon">🔬</span> Detect Disease
       </a>
-
       <div class="sidebar-section-label">Account</div>
       <a href="index.html">
         <span class="nav-icon">🏠</span> Home
@@ -54,7 +35,6 @@
         <span class="nav-icon">🚪</span> Sign Out
       </a>
     </nav>
-
     <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
@@ -69,15 +49,13 @@
   <!-- MAIN CONTENT -->
   <main class="main-content">
 
-    <!-- Page header -->
-    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <!-- Page Header -->
+    <div class="page-header">
       <div>
         <h1 class="page-title">Dashboard 📊</h1>
         <p class="page-subtitle">Track your crop disease detection history and insights</p>
       </div>
-      <a href="predict.html" class="btn btn-primary">
-        🔬 New Detection
-      </a>
+      <a href="predict.html" class="btn btn-primary">🔬 New Detection</a>
     </div>
 
     <!-- Stats -->
@@ -104,39 +82,34 @@
       </div>
     </div>
 
-    <!-- Charts row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+    <!-- Charts Row -->
+    <div class="charts-grid">
       <div class="card">
-        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:16px;">🦠 Disease Distribution</div>
-        <div style="height:200px;position:relative;">
+        <div class="card-title">🦠 Disease Distribution</div>
+        <div class="chart-wrap">
           <canvas id="disease-chart"></canvas>
-          <div id="no-disease-chart" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.88rem;text-align:center;">
-            No data yet.<br>Run your first detection!
-          </div>
+          <div id="no-disease-chart" class="chart-empty">No data yet.<br>Run your first detection!</div>
         </div>
       </div>
       <div class="card">
-        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:16px;">📅 Last 7 Days Activity</div>
-        <div style="height:200px;position:relative;">
+        <div class="card-title">📅 Last 7 Days Activity</div>
+        <div class="chart-wrap">
           <canvas id="week-chart"></canvas>
-          <div id="no-week-chart" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.88rem;text-align:center;">
-            No activity yet.
-          </div>
+          <div id="no-week-chart" class="chart-empty">No activity yet.</div>
         </div>
       </div>
     </div>
 
-    <!-- Recent activity + History -->
-    <div style="display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start;">
-
-      <!-- Recent -->
+    <!-- Bottom Row -->
+    <div class="bottom-grid">
+      <!-- Recent Activity -->
       <div class="card">
-        <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;margin-bottom:4px;">⚡ Recent Activity</div>
+        <div class="card-title">⚡ Recent Activity</div>
         <div id="recent-list"></div>
         <a href="#history-section" class="btn btn-outline btn-sm btn-block" style="margin-top:12px;">View All History</a>
       </div>
 
-      <!-- History table -->
+      <!-- History Table -->
       <div class="history-section" id="history-section">
         <div class="history-header">
           <div class="history-title">📋 Detection History</div>
@@ -158,7 +131,6 @@
           </table>
         </div>
       </div>
-
     </div>
 
   </main>
@@ -192,7 +164,6 @@
 </div>
 
 <div class="toast-container" id="toast-container"></div>
-
 <script src="../js/chatbot.js"></script>
 <script type="module" src="../js/dashboard-supabase.js"></script>
 </body>
