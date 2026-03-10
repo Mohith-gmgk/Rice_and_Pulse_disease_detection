@@ -230,13 +230,33 @@ async function autoSavePrediction(result) {
   try {
     let thumbnailUrl = null;
     if (currentFile) {
-      const fileName = `${currentUser.id}/${Date.now()}.jpg`;
-      const { error: uploadError } = await supabase.storage
+      const ext      = currentFile.name.split('.').pop().toLowerCase() || 'jpg';
+      const mimeType = currentFile.type || 'image/jpeg';
+      const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
+
+      console.log('Uploading image:', fileName, mimeType, currentFile.size);
+
+      // Convert to ArrayBuffer for reliable upload
+      const arrayBuffer = await currentFile.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: mimeType });
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('predictions')
-        .upload(fileName, currentFile, { upsert: true });
-      if (!uploadError) {
-        const { data } = supabase.storage.from('predictions').getPublicUrl(fileName);
-        thumbnailUrl = data.publicUrl;
+        .upload(fileName, blob, {
+          upsert: true,
+          contentType: mimeType,
+          cacheControl: '3600',
+        });
+
+      if (uploadError) {
+        console.error('Image upload failed:', uploadError);
+        showToast('⚠️ Image upload failed: ' + uploadError.message, 'error');
+      } else {
+        const { data: urlData } = supabase.storage
+          .from('predictions')
+          .getPublicUrl(fileName);
+        thumbnailUrl = urlData.publicUrl;
+        console.log('✅ Image uploaded successfully:', thumbnailUrl);
       }
     }
 
