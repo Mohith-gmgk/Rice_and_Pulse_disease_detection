@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — ARCDD AI</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-icon">🌿</div>
+      ARCDD<span style="color:var(--gold)">AI</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="predict.html"><span class="nav-icon">🔬</span> Detect Disease</a>
+      <a href="history.html"><span class="nav-icon">🖼️</span> My Uploads</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="profile.html" class="active"><span class="nav-icon">👤</span> My Profile</a>
+      <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+      <a href="#" onclick="logout(); return false;"><span class="nav-icon">🚪</span> Sign Out</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+          <div class="sidebar-user-email" id="sidebar-user-email"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">👤 My Profile</h1>
+        <p class="page-subtitle">Update your personal information and account settings</p>
+      </div>
+    </div>
+
+    <div class="profile-layout">
+
+      <!-- LEFT: Avatar + Info -->
+      <div class="profile-left">
+        <div class="card profile-avatar-card">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-large" id="profile-avatar-preview">U</div>
+            <button class="profile-avatar-edit" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+            <input type="file" id="avatar-input" accept="image/*" style="display:none;">
+          </div>
+          <div class="profile-name-display" id="profile-name-display">Loading...</div>
+          <div class="profile-email-display" id="profile-email-display"></div>
+          <div class="profile-joined" id="profile-joined"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Forms -->
+      <div class="profile-right">
+
+        <!-- Personal Info -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">📝 Personal Information</div>
+          <div class="profile-form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" id="profile-firstname" class="form-input" placeholder="First name">
+              <div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" id="profile-lastname" class="form-input" placeholder="Last name">
+              <div class="form-error"></div>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label">Mobile Number</label>
+              <input type="text" id="profile-mobile" class="form-input" placeholder="Mobile number">
+              <div class="form-error"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="save-info-btn" onclick="savePersonalInfo()">💾 Save Changes</button>
+        </div>
+
+        <!-- Email Update -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">📧 Update Email</div>
+          <div class="form-group">
+            <label class="form-label">New Email Address</label>
+            <input type="email" id="profile-email" class="form-input" placeholder="New email address">
+            <div class="form-error"></div>
+          </div>
+          <button class="btn btn-primary" id="save-email-btn" onclick="saveEmail()">📧 Update Email</button>
+        </div>
+
+        <!-- Password Update -->
+        <div class="card">
+          <div class="card-title">🔒 Change Password</div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <div style="position:relative;">
+              <input type="password" id="profile-password" class="form-input" placeholder="New password">
+              <button type="button" class="pw-toggle" id="pw-toggle-1" onclick="togglePasswordVisibility('profile-password','pw-toggle-1')">👁</button>
+            </div>
+            <div class="form-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <div style="position:relative;">
+              <input type="password" id="profile-confirm" class="form-input" placeholder="Confirm new password">
+              <button type="button" class="pw-toggle" id="pw-toggle-2" onclick="togglePasswordVisibility('profile-confirm','pw-toggle-2')">👁</button>
+            </div>
+            <div class="form-error"></div>
+          </div>
+          <button class="btn btn-primary" id="save-password-btn" onclick="savePassword()">🔒 Update Password</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="CropBot">🤖</button>
+  <div id="chatbot-panel" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()">✕</button>
+      </div>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('What is Rice Blast disease?')">🌾 Rice Blast</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How to treat Brown Spot?')">💊 Treatments</span>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask CropBot..." rows="1"></textarea>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="../js/chatbot.js"></script>
+<script type="module" src="../js/profile.js"></script>
+</body>
+</html>

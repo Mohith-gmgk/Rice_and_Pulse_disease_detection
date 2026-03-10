@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Uploads — ARCDD AI</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-icon">🌿</div>
+      ARCDD<span style="color:var(--gold)">AI</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="predict.html"><span class="nav-icon">🔬</span> Detect Disease</a>
+      <a href="history.html" class="active"><span class="nav-icon">🖼️</span> My Uploads</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="profile.html"><span class="nav-icon">👤</span> My Profile</a>
+      <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+      <a href="#" onclick="logout(); return false;"><span class="nav-icon">🚪</span> Sign Out</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+          <div class="sidebar-user-email" id="sidebar-user-email"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">🖼️ My Uploads</h1>
+        <p class="page-subtitle">All your previously uploaded leaf images with disease predictions</p>
+      </div>
+      <a href="predict.html" class="btn btn-primary">🔬 New Detection</a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-icon">🖼️</div>
+        <div class="stat-value" id="hist-total">0</div>
+        <div class="stat-label">Total Uploads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🦠</div>
+        <div class="stat-value" id="hist-diseases">0</div>
+        <div class="stat-label">Unique Diseases</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value" id="hist-avg">—</div>
+        <div class="stat-label">Avg Confidence</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-value" id="hist-healthy">0</div>
+        <div class="stat-label">Healthy Leaves</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="history-filter-bar">
+      <input type="text" id="search-input" class="form-input" placeholder="🔍 Search by disease or crop..." oninput="filterHistory()">
+      <select id="severity-filter" class="form-input" onchange="filterHistory()">
+        <option value="">All Severities</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+        <option value="None">Healthy</option>
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="clearAllUploads()">🗑 Clear All</button>
+    </div>
+
+    <!-- Image Grid -->
+    <div id="uploads-grid" class="uploads-grid">
+      <div class="uploads-empty" id="uploads-empty">
+        <div style="font-size:3rem;margin-bottom:12px;">🌿</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;">No uploads yet</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Upload a leaf image to get started</p>
+        <a href="predict.html" class="btn btn-primary" style="margin-top:16px;">🔬 Start Detection</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-fab">
+  <button id="chatbot-btn" onclick="toggleChatbot()" title="CropBot">🤖</button>
+  <div id="chatbot-panel" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-avatar-large">🌿</div>
+      <div class="chat-header-info">
+        <div class="chat-bot-name">CropBot AI</div>
+        <div class="chat-bot-status">Online</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" onclick="clearChat()">🗑</button>
+        <button class="chat-header-btn" onclick="toggleChatbot()">✕</button>
+      </div>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-suggestions">
+      <span class="suggestion-chip" onclick="sendQuickMessage('What is Rice Blast disease?')">🌾 Rice Blast</span>
+      <span class="suggestion-chip" onclick="sendQuickMessage('How to treat Brown Spot?')">💊 Treatments</span>
+    </div>
+    <div class="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask CropBot..." rows="1"></textarea>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="../js/chatbot.js"></script>
+<script type="module" src="../js/history.js"></script>
+</body>
+</html>

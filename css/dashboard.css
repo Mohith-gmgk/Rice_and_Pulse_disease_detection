@@ -559,3 +559,248 @@ html, body {
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
+
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.profile-avatar-card {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.profile-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+  overflow: hidden;
+  border: 3px solid rgba(45,181,103,0.3);
+}
+
+.profile-avatar-edit {
+  background: rgba(45,181,103,0.1);
+  border: 1px solid rgba(45,181,103,0.3);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  color: var(--green-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.profile-avatar-edit:hover {
+  background: rgba(45,181,103,0.2);
+}
+
+.profile-name-display {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.profile-email-display {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.profile-joined {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  display: inline-block;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   HISTORY / UPLOADS PAGE
+   ============================================================ */
+.history-filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.history-filter-bar .form-input {
+  flex: 1;
+  min-width: 180px;
+  max-width: 320px;
+}
+
+.uploads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.uploads-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.upload-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+}
+
+.upload-card:hover {
+  border-color: rgba(45,181,103,0.4);
+  transform: translateY(-2px);
+}
+
+.upload-card-img {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: var(--bg-card2);
+  overflow: hidden;
+}
+
+.upload-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.upload-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: linear-gradient(160deg, rgba(45,181,103,0.1), transparent);
+}
+
+.upload-card-conf {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.75);
+  color: var(--green-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.upload-card-body {
+  padding: 14px;
+}
+
+.upload-card-disease {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upload-card-crop {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.upload-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 4px;
+}
+
+.upload-card-severity {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.upload-card-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.upload-card-model {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.upload-card-delete {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(224,85,85,0.8);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.upload-card:hover .upload-card-delete {
+  display: flex;
+}
+
+.upload-card-delete:hover {
+  background: var(--red);
+}
