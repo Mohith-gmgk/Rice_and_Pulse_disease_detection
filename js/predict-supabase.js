@@ -160,13 +160,13 @@ async function callRealModel(file) {
       <div style="text-align:center;padding:40px 20px;">
         <div style="font-size:2.5rem;margin-bottom:16px;">⏳</div>
         <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--green-light);margin-bottom:8px;">Waking up AI server...</div>
-        <div style="font-size:0.85rem;color:var(--text-muted);">First request may take 30–60 seconds on free tier</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">May take up to 2–3 minutes on free tier</div>
       </div>`;
   }
 
-  // Use 120 second timeout to handle cold starts
+  // Use 300 second timeout to handle cold starts + slow CPU inference
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120000);
+  const timeoutId = setTimeout(() => controller.abort(), 300000);
 
   try {
     const response = await fetch(`${FLASK_API_URL}/predict`, {
