@@ -135,6 +135,59 @@ function resetResult() {
 }
 
 // ============================================================
+// ============================================================
+// FLASK API URL — update this after deploying to Render
+// ============================================================
+const FLASK_API_URL = window.FLASK_API_URL || '';  // e.g. 'https://arcdd-disease-api.onrender.com'
+
+// ============================================================
+// CALL REAL MODEL API
+// ============================================================
+async function callRealModel(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(`${FLASK_API_URL}/predict`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'API error');
+  }
+
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error || 'Prediction failed');
+
+  // Map API response to the app's result format
+  const pred    = data.prediction;
+  const isHealthy = pred.is_healthy;
+
+  return {
+    primary: {
+      confidence: pred.confidence,
+      disease: {
+        name:        pred.disease || 'Healthy',
+        crop:        pred.crop,
+        severity:    pred.severity,
+        description: isHealthy
+          ? `${pred.crop} plant appears healthy with no signs of disease.`
+          : `${pred.disease} detected in ${pred.crop} with ${(pred.confidence * 100).toFixed(1)}% confidence.`,
+        treatment:   isHealthy ? ['Maintain current care routine.'] : ['Consult an agronomist for treatment.'],
+        prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
+      }
+    },
+    alternatives: data.top5.slice(1).map(t => ({
+      name:       t.disease,
+      confidence: t.confidence,
+    })),
+    model: data.model,
+    isHealthy,
+  };
+}
+
+// ============================================================
 // ANALYSIS
 // ============================================================
 async function runAnalysis() {
@@ -144,7 +197,14 @@ async function runAnalysis() {
   btn.innerHTML = '<span class="spinner"></span> Analyzing...';
   showAnalyzingState();
   try {
-    const result = await window.CropModel.runDemoModel(currentFile);
+    let result;
+    if (FLASK_API_URL) {
+      // Use real EfficientNetB2 model
+      result = await callRealModel(currentFile);
+    } else {
+      // Fallback to demo model until API is deployed
+      result = await window.CropModel.runDemoModel(currentFile);
+    }
     renderResult(result);
     btn.innerHTML = '🔬 Analyze Again';
     btn.disabled = false;
