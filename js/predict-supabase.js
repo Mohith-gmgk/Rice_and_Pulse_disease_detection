@@ -184,31 +184,31 @@ async function callRealModel(file) {
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Prediction failed');
 
-  // Map API response to the app's result format
-  const pred    = data.prediction;
-  const isHealthy = pred.is_healthy;
+    // Map API response to the app's result format
+    const pred    = data.prediction;
+    const isHealthy = pred.is_healthy;
 
-  return {
-    primary: {
-      confidence: pred.confidence,
-      disease: {
-        name:        pred.disease || 'Healthy',
-        crop:        pred.crop,
-        severity:    pred.severity,
-        description: isHealthy
-          ? `${pred.crop} plant appears healthy with no signs of disease.`
-          : `${pred.disease} detected in ${pred.crop} with ${(pred.confidence * 100).toFixed(1)}% confidence.`,
-        treatment:   isHealthy ? ['Maintain current care routine.'] : ['Consult an agronomist for treatment.'],
-        prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
-      }
-    },
-    alternatives: data.top5.slice(1).map(t => ({
-      name:       t.disease,
-      confidence: t.confidence,
-    })),
-    model: data.model,
-    isHealthy,
-  };
+    return {
+      primary: {
+        confidence: pred.confidence,
+        disease: {
+          name:        pred.disease || 'Healthy',
+          crop:        pred.crop,
+          severity:    pred.severity,
+          description: isHealthy
+            ? `${pred.crop} plant appears healthy with no signs of disease.`
+            : `${pred.disease} detected in ${pred.crop} with ${(pred.confidence * 100).toFixed(1)}% confidence.`,
+          treatment:   isHealthy ? ['Maintain current care routine.'] : ['Consult an agronomist for treatment.'],
+          prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
+        }
+      },
+      alternatives: data.top5.slice(1).map(t => ({
+        name:       t.disease,
+        confidence: t.confidence,
+      })),
+      model: data.model,
+      isHealthy,
+    };
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') {
