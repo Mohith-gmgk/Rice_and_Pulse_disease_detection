@@ -143,22 +143,46 @@ const FLASK_API_URL = window.FLASK_API_URL || '';  // e.g. 'https://arcdd-diseas
 // ============================================================
 // CALL REAL MODEL API
 // ============================================================
+async function wakeUpServer() {
+  try {
+    await fetch(`${FLASK_API_URL}/`, { method: 'GET', signal: AbortSignal.timeout(10000) });
+  } catch (e) { /* ignore */ }
+}
+
 async function callRealModel(file) {
   const formData = new FormData();
   formData.append('image', file);
 
-  const response = await fetch(`${FLASK_API_URL}/predict`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.error || 'API error');
+  // Show waking up message if server might be sleeping
+  const resultBody = document.getElementById('result-body');
+  if (resultBody) {
+    resultBody.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:2.5rem;margin-bottom:16px;">⏳</div>
+        <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--green-light);margin-bottom:8px;">Waking up AI server...</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">First request may take 30–60 seconds on free tier</div>
+      </div>`;
   }
 
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || 'Prediction failed');
+  // Use 120 second timeout to handle cold starts
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+  try {
+    const response = await fetch(`${FLASK_API_URL}/predict`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `Server error ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error || 'Prediction failed');
 
   // Map API response to the app's result format
   const pred    = data.prediction;
@@ -185,6 +209,13 @@ async function callRealModel(file) {
     model: data.model,
     isHealthy,
   };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Server took too long. Please try again — it should be faster now!');
+    }
+    throw err;
+  }
 }
 
 // ============================================================
