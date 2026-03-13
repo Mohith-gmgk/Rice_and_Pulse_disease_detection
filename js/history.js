@@ -79,11 +79,15 @@ function renderGrid(uploads) {
     const time     = new Date(upload.created_at).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
     const sevColor = upload.severity === 'High' ? 'var(--red)' : upload.severity === 'Medium' ? 'var(--gold)' : 'var(--green-light)';
 
+    const imgHtml = upload.thumbnail_url
+      ? `<img src="${upload.thumbnail_url}" alt="${upload.disease}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+         <div class="upload-card-placeholder" style="display:none;">🌿</div>`
+      : `<div class="upload-card-placeholder">🌿</div>`;
+
     card.innerHTML = `
       <div class="upload-card-img">
-        ${upload.thumbnail_url
-          ? `<img src="${upload.thumbnail_url}" alt="${upload.disease}" loading="lazy">`
-          : `<div class="upload-card-placeholder">🌿</div>`}
+        ${imgHtml}
         <div class="upload-card-conf">${conf}%</div>
       </div>
       <div class="upload-card-body">

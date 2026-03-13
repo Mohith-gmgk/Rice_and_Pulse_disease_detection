@@ -67,7 +67,7 @@ html, body {
   border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 4px;
   transition: all 0.2s;
@@ -126,7 +126,7 @@ html, body {
 .sidebar-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .sidebar-user-name {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -135,7 +135,7 @@ html, body {
 }
 
 .sidebar-user-email {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -164,14 +164,14 @@ html, body {
 
 .page-title {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 800;
   margin-bottom: 6px;
 }
 
 .page-subtitle {
   color: var(--text-secondary);
-  font-size: 0.92rem;
+  font-size: 0.96rem;
 }
 
 /* ---- Stats Grid ---- */
@@ -209,7 +209,7 @@ html, body {
 
 .stat-value {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -219,7 +219,7 @@ html, body {
 }
 
 .stat-label {
-  font-size: 0.78rem;
+  font-size: 0.83rem;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -245,7 +245,7 @@ html, body {
 
 .history-title {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -282,7 +282,7 @@ html, body {
   display: block;
 }
 
-.disease-name { font-weight: 600; color: var(--text-primary); }
+.disease-name { font-weight: 600; color: var(--text-primary); font-size: 0.93rem; }
 .disease-crop { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
 
 /* ---- Predict Layout ---- */
@@ -741,7 +741,7 @@ html, body {
 
 .upload-card-disease {
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -803,4 +803,75 @@ html, body {
 
 .upload-card-delete:hover {
   background: var(--red);
+}
+
+/* ============================================================
+   GEMINI DISEASE INFO
+   ============================================================ */
+.gemini-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(45,181,103,0.25);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.gemini-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(45,181,103,0.12), rgba(45,181,103,0.04));
+  border-bottom: 1px solid rgba(45,181,103,0.15);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--green-light);
+}
+
+.gemini-urgency {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.gemini-block {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.gemini-block:last-child {
+  border-bottom: none;
+}
+
+.gemini-block-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.gemini-text {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.gemini-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gemini-list li {
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  line-height: 1.5;
 }

@@ -219,6 +219,25 @@ async function callRealModel(file) {
 }
 
 // ============================================================
+// FETCH DISEASE INFO FROM GEMINI
+// ============================================================
+async function fetchDiseaseInfo(disease, crop, confidence, isHealthy) {
+  try {
+    const response = await fetch('/api/disease-info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disease, crop, confidence, isHealthy }),
+    });
+    const data = await response.json();
+    if (data.success) return data.info;
+    return null;
+  } catch (err) {
+    console.warn('Gemini info fetch failed:', err);
+    return null;
+  }
+}
+
+// ============================================================
 // ANALYSIS
 // ============================================================
 async function runAnalysis() {
@@ -227,6 +246,14 @@ async function runAnalysis() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Analyzing...';
   showAnalyzingState();
+
+  // Reset Gemini panel
+  const geminiInfo = document.getElementById('gemini-info');
+  if (geminiInfo) {
+    geminiInfo.style.display = 'none';
+    geminiInfo.innerHTML = '';
+  }
+
   try {
     let result;
     if (FLASK_API_URL) {
@@ -240,6 +267,11 @@ async function runAnalysis() {
     btn.innerHTML = '🔬 Analyze Again';
     btn.disabled = false;
     await autoSavePrediction(result);
+
+    // Fetch Gemini disease description in background
+    const pred = result.primary.disease;
+    fetchDiseaseInfo(pred.name, pred.crop, result.primary.confidence, result.isHealthy)
+      .then(info => { if (info) renderGeminiInfo(info, result.isHealthy); });
   } catch (err) {
     console.error('Analysis error:', err);
     showToast('Analysis failed. Try again.', 'error');
@@ -316,6 +348,58 @@ function renderResult(result) {
 // ============================================================
 // AUTO SAVE TO SUPABASE
 // ============================================================
+// ============================================================
+// RENDER GEMINI DISEASE INFO
+// ============================================================
+function renderGeminiInfo(info, isHealthy) {
+  // Remove loading placeholder if exists
+  const placeholder = document.getElementById('gemini-loading');
+  if (placeholder) placeholder.remove();
+
+  const container = document.getElementById('gemini-info');
+  if (!container) return;
+
+  const urgencyColor = {
+    'Immediate Action Required': 'var(--red)',
+    'Monitor Closely':           'var(--gold)',
+    'Low Priority':              'var(--green-light)',
+  }[info.urgency] || 'var(--green-light)';
+
+  container.innerHTML = `
+    <div class="gemini-section">
+      <div class="gemini-header">
+        <span>🤖</span>
+        <span>AI Disease Analysis <span style="font-size:0.72rem;color:var(--text-muted);font-weight:400;">powered by Gemini</span></span>
+        ${info.urgency ? `<span class="gemini-urgency" style="color:${urgencyColor};">⚠ ${info.urgency}</span>` : ''}
+      </div>
+
+      ${info.description ? `
+      <div class="gemini-block">
+        <div class="gemini-block-title">📋 About this ${isHealthy ? 'plant' : 'disease'}</div>
+        <p class="gemini-text">${info.description}</p>
+      </div>` : ''}
+
+      ${info.symptoms && info.symptoms.length ? `
+      <div class="gemini-block">
+        <div class="gemini-block-title">🔍 Symptoms</div>
+        <ul class="gemini-list">${info.symptoms.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>` : ''}
+
+      ${info.treatment && info.treatment.length ? `
+      <div class="gemini-block">
+        <div class="gemini-block-title">💊 Treatment</div>
+        <ul class="gemini-list">${info.treatment.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>` : ''}
+
+      ${info.prevention && info.prevention.length ? `
+      <div class="gemini-block">
+        <div class="gemini-block-title">🛡️ Prevention</div>
+        <ul class="gemini-list">${info.prevention.map(p => `<li>${p}</li>`).join('')}</ul>
+      </div>` : ''}
+    </div>`;
+  container.style.display = 'block';
+}
+
 async function autoSavePrediction(result) {
   if (!result || !currentUser) return;
   try {

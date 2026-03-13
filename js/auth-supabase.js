@@ -297,8 +297,8 @@ function initSignupPage() {
       });
       if (dbError) throw dbError;
 
-      showToast('Account created! Redirecting...', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+      showToast('Account created! Please sign in.', 'success');
+      setTimeout(() => { window.location.href = 'login.html'; }, 900);
 
     } catch (err) {
       btn.disabled = false;
