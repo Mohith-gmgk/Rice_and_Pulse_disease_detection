@@ -232,10 +232,12 @@ async function fetchDiseaseInfo(disease, crop, confidence, isHealthy) {
       body: JSON.stringify({ disease, crop, confidence, isHealthy }),
     });
     const data = await response.json();
+    console.log('Gemini response:', data);
     if (data.success) return data.info;
+    console.warn('Gemini failed:', data.error);
     return null;
   } catch (err) {
-    console.warn('Gemini info fetch failed:', err);
+    console.warn('Gemini fetch error:', err);
     return null;
   }
 }
@@ -317,7 +319,7 @@ function renderResult(result) {
 
   document.getElementById('result-body').innerHTML = `
     <div class="result-disease">${disease.name}</div>
-    <div class="result-crop">${disease.crop} · <em>${disease.scientificName}</em></div>
+    <div class="result-crop">${disease.crop}</div>
     <span class="badge ${severityBadge(disease.severity)}" style="margin-bottom:20px;">⚠️ Severity: ${disease.severity}</span>
     <div class="result-accuracy">
       <div class="accuracy-label"><span>Confidence Score</span><span class="accuracy-value">${fmtPct(conf)}</span></div>
