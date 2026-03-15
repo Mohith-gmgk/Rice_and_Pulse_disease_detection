@@ -182,6 +182,16 @@ async function callRealModel(file) {
     const pred    = data.prediction;
     const isHealthy = pred.is_healthy;
 
+    // Build topPredictions from top5 for renderResult
+    const topPredictions = (data.top5 || []).map(t => ({
+      confidence: t.confidence,
+      disease: {
+        name:  t.disease || 'Healthy',
+        crop:  t.crop,
+        color: t.disease?.toLowerCase().includes('healthy') ? '#2db567' : '#e05555',
+      }
+    }));
+
     return {
       primary: {
         confidence: pred.confidence,
@@ -194,13 +204,12 @@ async function callRealModel(file) {
             : `${pred.disease} detected in ${pred.crop} with ${(pred.confidence * 100).toFixed(1)}% confidence.`,
           treatment:   isHealthy ? ['Maintain current care routine.'] : ['Consult an agronomist for treatment.'],
           prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
+          color:       isHealthy ? '#2db567' : '#e05555',
         }
       },
-      alternatives: (data.top5 || []).slice(1).map(t => ({
-        name:       t.disease,
-        confidence: t.confidence,
-      })),
+      topPredictions,
       model: data.model,
+      inferenceTime: data.inference_time_ms,
       isHealthy,
     };
   } catch (err) {
