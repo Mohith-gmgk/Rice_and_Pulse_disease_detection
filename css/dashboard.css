@@ -879,3 +879,32 @@ html, body {
   color: var(--text-primary);
   line-height: 1.5;
 }
+
+/* ============================================================
+   HISTORY CARD IMPROVEMENTS
+   ============================================================ */
+.upload-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.upload-card-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.upload-card-fulldate {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.upload-card-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

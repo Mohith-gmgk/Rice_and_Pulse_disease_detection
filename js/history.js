@@ -58,6 +58,17 @@ function updateStats(uploads) {
     u.disease?.toLowerCase().includes('healthy')).length;
 }
 
+function getRelativeTime(date) {
+  const now  = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60)           return 'Just now';
+  if (diff < 3600)         return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400)        return `${Math.floor(diff / 3600)} hr ago`;
+  if (diff < 86400 * 7)   return `${Math.floor(diff / 86400)} days ago`;
+  if (diff < 86400 * 30)  return `${Math.floor(diff / 86400 / 7)} weeks ago`;
+  return `${Math.floor(diff / 86400 / 30)} months ago`;
+}
+
 function renderGrid(uploads) {
   const grid    = document.getElementById('uploads-grid');
   const emptyEl = document.getElementById('uploads-empty');
@@ -74,10 +85,14 @@ function renderGrid(uploads) {
   uploads.forEach(upload => {
     const card = document.createElement('div');
     card.className = 'upload-card';
-    const conf     = (upload.confidence * 100).toFixed(1);
-    const date     = new Date(upload.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-    const time     = new Date(upload.created_at).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
-    const sevColor = upload.severity === 'High' ? 'var(--red)' : upload.severity === 'Medium' ? 'var(--gold)' : 'var(--green-light)';
+    const conf      = (upload.confidence * 100).toFixed(1);
+    const createdAt = new Date(upload.created_at);
+    const date      = createdAt.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    const time      = createdAt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12: true });
+    const relTime   = getRelativeTime(createdAt);
+    const sevColor  = upload.severity === 'High' ? 'var(--red)' : upload.severity === 'Medium' ? 'var(--gold)' : upload.severity === 'None' ? 'var(--green-light)' : 'var(--green-light)';
+    const sevIcon   = upload.severity === 'High' ? '🔴' : upload.severity === 'Medium' ? '🟡' : '🟢';
+    const isHealthy = upload.disease?.toLowerCase().includes('healthy');
 
     const imgHtml = upload.thumbnail_url
       ? `<img src="${upload.thumbnail_url}" alt="${upload.disease}" loading="lazy"
@@ -94,10 +109,14 @@ function renderGrid(uploads) {
         <div class="upload-card-disease">${upload.disease}</div>
         <div class="upload-card-crop">🌾 ${upload.crop}</div>
         <div class="upload-card-meta">
-          <span class="upload-card-severity" style="color:${sevColor};">⚠ ${upload.severity || 'N/A'}</span>
-          <span class="upload-card-date">${date} ${time}</span>
+          <span class="upload-card-severity" style="color:${sevColor};">${sevIcon} ${upload.severity || 'N/A'}</span>
+          <span class="upload-card-date" title="${date} at ${time}">${relTime}</span>
         </div>
-        <div class="upload-card-model">🤖 ${upload.model || 'EfficientNetB2'}</div>
+        <div class="upload-card-footer">
+          <span class="upload-card-model">🤖 ${upload.model || 'EfficientNetB2'}</span>
+          <span class="upload-card-time">🕐 ${time}</span>
+        </div>
+        <div class="upload-card-fulldate">${date}</div>
       </div>
       <button class="upload-card-delete" onclick="deleteUpload('${upload.id}')" title="Delete">🗑</button>`;
     grid.appendChild(card);
