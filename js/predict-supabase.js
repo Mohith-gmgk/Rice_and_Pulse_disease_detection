@@ -245,8 +245,11 @@ async function fetchDiseaseInfo(disease, crop, confidence, isHealthy) {
 // ============================================================
 // ANALYSIS
 // ============================================================
+let _analyzing = false;
 async function runAnalysis() {
+  if (_analyzing) return;
   if (!currentFile) { showToast('Please upload a leaf image first.', 'error'); return; }
+  _analyzing = true;
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Analyzing...';
@@ -271,6 +274,7 @@ async function runAnalysis() {
     renderResult(result);
     btn.innerHTML = '🔬 Analyze Again';
     btn.disabled = false;
+    _analyzing = false;
     await autoSavePrediction(result);
 
     // Fetch Gemini disease description in background
@@ -284,6 +288,8 @@ async function runAnalysis() {
     btn.innerHTML = '🔬 Analyze Now';
     btn.disabled = false;
     resetResult();
+  } finally {
+    _analyzing = false;
   }
 }
 
