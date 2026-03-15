@@ -6,6 +6,10 @@ import { supabase } from "./supabase-config.js";
 import { requireAuth, showToast } from "./auth-supabase.js";
 
 let currentFile = null;
+
+// Expose to global scope (needed because this is a module)
+window.runAnalysis = function() { runAnalysis(); };
+window.resetUpload = function() { resetUpload(); };
 let currentUser = null;
 let currentProfile = null;
 
@@ -172,7 +176,6 @@ async function callRealModel(file) {
     }
 
     const data = await response.json();
-    console.log('API response:', JSON.stringify(data));
     if (!data.success) throw new Error(data.error || 'Prediction failed');
 
     // Map API response to the app's result format
