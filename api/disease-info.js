@@ -35,23 +35,28 @@ export default async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: 1024,responseMimeType: "application/json" },
         }),
       }
     );
 
-    const data = await response.json();
+    let data;
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Gemini API error:", text);
+      return res.status(500).json({ success: false, error: text });
+    }
+
+    data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!text) return res.status(200).json({ success: false, error: 'Empty response from Gemini' });
 
     // Clean and parse JSON - handle various formats
     let clean = text
-      .replace(/```json
-?/g, '')
-      .replace(/```
-?/g, '')
-      .replace(/^\s*[
-]/gm, '')
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*/g, '')
+      .replace(/^\s*\n/gm, '')
       .trim();
 
     // Extract JSON object if wrapped in other text
