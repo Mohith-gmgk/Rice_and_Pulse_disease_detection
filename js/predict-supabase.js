@@ -280,7 +280,10 @@ async function runAnalysis() {
     // Fetch Gemini disease description in background
     const pred = result.primary.disease;
     fetchDiseaseInfo(pred.name, pred.crop, result.primary.confidence, result.isHealthy)
-      .then(info => { if (info) renderGeminiInfo(info, result.isHealthy); });
+    .then(info => {
+      console.log("Gemini response:", info);
+      if (info) renderGeminiInfo(info, result.isHealthy);
+    });
   } catch (err) {
     console.error('Analysis error:', err);
     const msg = err.message || 'Analysis failed. Try again.';
