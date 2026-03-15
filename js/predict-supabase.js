@@ -172,6 +172,7 @@ async function callRealModel(file) {
     }
 
     const data = await response.json();
+    console.log('API response:', JSON.stringify(data));
     if (!data.success) throw new Error(data.error || 'Prediction failed');
 
     // Map API response to the app's result format
