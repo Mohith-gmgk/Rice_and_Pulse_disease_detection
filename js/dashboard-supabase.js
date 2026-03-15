@@ -200,6 +200,56 @@ window.logout = logout;
 function renderCharts(predictions) {
   if (!predictions.length) return;
 
+  // Daily detections chart (last 7 days)
+  const dailyCanvas = document.getElementById('daily-chart');
+  const noDaily = document.getElementById('no-daily-chart');
+  if (dailyCanvas && window.Chart) {
+    const days = [];
+    const counts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const label = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      days.push(label);
+      const count = predictions.filter(p => {
+        const pd = new Date(p.created_at);
+        return pd.getDate() === d.getDate() && pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+      }).length;
+      counts.push(count);
+    }
+    if (noDaily) noDaily.style.display = 'none';
+    new Chart(dailyCanvas, {
+      type: 'bar',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Detections',
+          data: counts,
+          backgroundColor: 'rgba(45,181,103,0.7)',
+          borderColor: '#2db567',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} detection${ctx.parsed.y !== 1 ? 's' : ''}` } }
+        },
+        scales: {
+          x: { ticks: { color: '#8ab89a', font: { size: 10 } }, grid: { display: false } },
+          y: {
+            min: 0,
+            ticks: { color: '#8ab89a', font: { size: 11 }, stepSize: 1, callback: v => Number.isInteger(v) ? v : '' },
+            grid: { color: 'rgba(255,255,255,0.04)' }
+          }
+        }
+      }
+    });
+  }
+
   const diseaseCanvas = document.getElementById('disease-chart');
   const noDisease = document.getElementById('no-disease-chart');
   if (diseaseCanvas && window.Chart) {

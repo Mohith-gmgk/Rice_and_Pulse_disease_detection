@@ -73,6 +73,9 @@ export function togglePasswordVisibility(inputId, btnId) {
   btn.textContent = input.type === 'password' ? '👁' : '🙈';
 }
 
+// Expose to global scope so onclick= in HTML can call it
+window.togglePasswordVisibility = togglePasswordVisibility;
+
 // ============================================================
 // AVATAR UPLOAD PREVIEW
 // ============================================================

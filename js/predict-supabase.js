@@ -274,7 +274,8 @@ async function runAnalysis() {
       .then(info => { if (info) renderGeminiInfo(info, result.isHealthy); });
   } catch (err) {
     console.error('Analysis error:', err);
-    showToast('Analysis failed. Try again.', 'error');
+    const msg = err.message || 'Analysis failed. Try again.';
+    showToast(msg, 'error');
     btn.innerHTML = '🔬 Analyze Now';
     btn.disabled = false;
     resetResult();
