@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
+        model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: 'You are a crop disease expert. Always respond with valid JSON only, no markdown, no explanation.' },
           { role: 'user', content: prompt }
@@ -38,8 +38,9 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    console.log('Groq raw response:', JSON.stringify(data));
     const text = data.choices?.[0]?.message?.content || '';
-    if (!text) return res.status(200).json({ success: false, error: 'Empty response from Groq' });
+    if (!text) return res.status(200).json({ success: false, error: 'Empty response from Groq: ' + JSON.stringify(data) });
 
     // Clean and parse JSON
     let clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
