@@ -202,7 +202,7 @@ async function callRealModel(file) {
           prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
         }
       },
-      alternatives: data.top5.slice(1).map(t => ({
+      alternatives: (data.top5 || []).slice(1).map(t => ({
         name:       t.disease,
         confidence: t.confidence,
       })),
