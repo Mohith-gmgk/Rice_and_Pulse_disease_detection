@@ -153,20 +153,10 @@ async function callRealModel(file) {
   const formData = new FormData();
   formData.append('image', file);
 
-  // Show waking up message if server might be sleeping
-  const resultBody = document.getElementById('result-body');
-  if (resultBody) {
-    resultBody.innerHTML = `
-      <div style="text-align:center;padding:40px 20px;">
-        <div style="font-size:2.5rem;margin-bottom:16px;">⏳</div>
-        <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--green-light);margin-bottom:8px;">Waking up AI server...</div>
-        <div style="font-size:0.85rem;color:var(--text-muted);">May take up to 2–3 minutes on free tier</div>
-      </div>`;
-  }
-
-  // Use 300 second timeout to handle cold starts + slow CPU inference
+  // Use 90 second timeout
+  // (TFLite is fast — prediction takes <1s once model is loaded)
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 300000);
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
 
   try {
     const response = await fetch(`${FLASK_API_URL}/predict`, {
