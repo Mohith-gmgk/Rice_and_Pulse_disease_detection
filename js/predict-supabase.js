@@ -279,7 +279,8 @@ async function runAnalysis() {
 
     // Fetch Gemini disease description in background
     const pred = result.primary.disease;
-    fetchDiseaseInfo(pred.name, pred.crop, result.primary.confidence, result.isHealthy)
+    console.log("Calling Gemini API...");
+    fetchDiseaseInfo(pred.name, pred.crop || '', result.primary.confidence, result.isHealthy)
     .then(info => {
       console.log("Gemini response:", info);
       if (info) renderGeminiInfo(info, result.isHealthy);
