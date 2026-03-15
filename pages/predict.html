@@ -79,14 +79,13 @@
 
         <!-- Analyze button -->
         <div class="analyze-btn-wrap">
-          <button id="analyze-btn" class="btn btn-primary btn-lg analyze-full-btn" disabled onclick="window.runAnalysis && window.runAnalysis()">
+          <button id="analyze-btn" class="btn btn-primary btn-lg analyze-full-btn" disabled>
             🔬 Analyze Now
           </button>
         </div>
 
-        <!-- Supported crops -->
-        <div class="card" style="margin-top:24px;">
-          <div class="card-title">🌾 44 Supported Classes</div>
+        <!-- Supported crops moved to bottom -->
+        <div style="display:none;">
           <div class="crops-grid">
             <div class="crop-item">🍎 Apple Scab</div>
             <div class="crop-item">🍎 Black Rot</div>
@@ -150,9 +149,60 @@
         </div>
       </div>
 
-      <!-- GEMINI DISEASE INFO -->
-      <div id="gemini-info" style="display:none;margin-top:20px;"></div>
+    </div>
 
+    <!-- AI DISEASE INFO - Full width below both columns -->
+    <div id="gemini-info" style="display:none;margin-top:24px;"></div>
+
+    <!-- 44 Classes - Full width at bottom -->
+    <div class="card" style="margin-top:24px;">
+      <div class="card-title">🌾 44 Supported Classes</div>
+      <div class="crops-grid">
+        <div class="crop-item">🍎 Apple Scab</div>
+        <div class="crop-item">🍎 Black Rot</div>
+        <div class="crop-item">🍎 Cedar Apple Rust</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Apple Healthy</div>
+        <div class="crop-item">🌿 Cassava Bacterial Blight</div>
+        <div class="crop-item">🌿 Cassava Brown Streak</div>
+        <div class="crop-item">🌿 Cassava Green Mottle</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Cassava Healthy</div>
+        <div class="crop-item">🌿 Cassava Mosaic</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Cherry Healthy</div>
+        <div class="crop-item">🍒 Cherry Powdery Mildew</div>
+        <div class="crop-item">🌽 Cercospora Leaf Spot</div>
+        <div class="crop-item">🌽 Common Rust</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Corn Healthy</div>
+        <div class="crop-item">🌽 Northern Leaf Blight</div>
+        <div class="crop-item">🍇 Grape Black Rot</div>
+        <div class="crop-item">🍇 Grape Esca</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Grape Healthy</div>
+        <div class="crop-item">🍇 Grape Leaf Blight</div>
+        <div class="crop-item">🍊 Citrus Greening</div>
+        <div class="crop-item">🍑 Peach Bacterial Spot</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Peach Healthy</div>
+        <div class="crop-item">🫑 Pepper Bacterial Spot</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Pepper Healthy</div>
+        <div class="crop-item">🥔 Potato Early Blight</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Potato Healthy</div>
+        <div class="crop-item">🥔 Potato Late Blight</div>
+        <div class="crop-item">🌾 Rice Brown Spot</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Rice Healthy</div>
+        <div class="crop-item">🌾 Rice Hispa</div>
+        <div class="crop-item">🌾 Rice Leaf Blast</div>
+        <div class="crop-item">🎃 Squash Powdery Mildew</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Strawberry Healthy</div>
+        <div class="crop-item">🍓 Strawberry Leaf Scorch</div>
+        <div class="crop-item">🍅 Tomato Bacterial Spot</div>
+        <div class="crop-item">🍅 Tomato Early Blight</div>
+        <div class="crop-item" style="color:var(--green-light)">🟢 Tomato Healthy</div>
+        <div class="crop-item">🍅 Tomato Late Blight</div>
+        <div class="crop-item">🍅 Tomato Leaf Mold</div>
+        <div class="crop-item">🍅 Tomato Septoria Leaf Spot</div>
+        <div class="crop-item">🍅 Tomato Spider Mites</div>
+        <div class="crop-item">🍅 Tomato Target Spot</div>
+        <div class="crop-item">🍅 Tomato Mosaic Virus</div>
+        <div class="crop-item">🍅 Tomato Yellow Leaf Curl</div>
+      </div>
     </div>
 
   </main>

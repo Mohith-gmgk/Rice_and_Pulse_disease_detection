@@ -288,7 +288,7 @@ html, body {
 /* ---- Predict Layout ---- */
 .predict-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 420px;
   gap: 24px;
   align-items: start;
   width: 100%;
