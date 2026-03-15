@@ -6,6 +6,10 @@ import { supabase } from "./supabase-config.js";
 import { requireAuth, showToast } from "./auth-supabase.js";
 
 let currentFile = null;
+
+// Expose to global scope (needed because this is a module)
+window.runAnalysis = function() { runAnalysis(); };
+window.resetUpload = function() { resetUpload(); };
 let currentUser = null;
 let currentProfile = null;
 
@@ -153,20 +157,10 @@ async function callRealModel(file) {
   const formData = new FormData();
   formData.append('image', file);
 
-  // Show waking up message if server might be sleeping
-  const resultBody = document.getElementById('result-body');
-  if (resultBody) {
-    resultBody.innerHTML = `
-      <div style="text-align:center;padding:40px 20px;">
-        <div style="font-size:2.5rem;margin-bottom:16px;">⏳</div>
-        <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--green-light);margin-bottom:8px;">Waking up AI server...</div>
-        <div style="font-size:0.85rem;color:var(--text-muted);">May take up to 2–3 minutes on free tier</div>
-      </div>`;
-  }
-
-  // Use 300 second timeout to handle cold starts + slow CPU inference
+  // Use 90 second timeout
+  // (TFLite is fast — prediction takes <1s once model is loaded)
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 300000);
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
 
   try {
     const response = await fetch(`${FLASK_API_URL}/predict`, {
@@ -188,6 +182,16 @@ async function callRealModel(file) {
     const pred    = data.prediction;
     const isHealthy = pred.is_healthy;
 
+    // Build topPredictions from top5 for renderResult
+    const topPredictions = (data.top5 || []).map(t => ({
+      confidence: t.confidence,
+      disease: {
+        name:  t.disease || 'Healthy',
+        crop:  t.crop,
+        color: t.disease?.toLowerCase().includes('healthy') ? '#2db567' : '#e05555',
+      }
+    }));
+
     return {
       primary: {
         confidence: pred.confidence,
@@ -200,13 +204,12 @@ async function callRealModel(file) {
             : `${pred.disease} detected in ${pred.crop} with ${(pred.confidence * 100).toFixed(1)}% confidence.`,
           treatment:   isHealthy ? ['Maintain current care routine.'] : ['Consult an agronomist for treatment.'],
           prevention:  isHealthy ? ['Regular monitoring recommended.'] : ['Early detection prevents spread.'],
+          color:       isHealthy ? '#2db567' : '#e05555',
         }
       },
-      alternatives: data.top5.slice(1).map(t => ({
-        name:       t.disease,
-        confidence: t.confidence,
-      })),
+      topPredictions,
       model: data.model,
+      inferenceTime: data.inference_time_ms,
       isHealthy,
     };
   } catch (err) {
@@ -229,10 +232,12 @@ async function fetchDiseaseInfo(disease, crop, confidence, isHealthy) {
       body: JSON.stringify({ disease, crop, confidence, isHealthy }),
     });
     const data = await response.json();
+    console.log('Gemini response:', data);
     if (data.success) return data.info;
+    console.warn('Gemini failed:', data.error);
     return null;
   } catch (err) {
-    console.warn('Gemini info fetch failed:', err);
+    console.warn('Gemini fetch error:', err);
     return null;
   }
 }
@@ -304,17 +309,21 @@ function showAnalyzingState() {
 }
 
 function renderResult(result) {
-  const { primary, topPredictions, model, inferenceTime } = result;
-  const disease = primary.disease;
-  const conf    = primary.confidence;
-  const { fmtPct, severityBadge } = window.CropModel;
+  const primary        = result.primary || {};
+  const topPredictions = result.topPredictions || [];
+  const model          = result.model || 'EfficientNetB2';
+  const inferenceTime  = result.inferenceTime || '';
+  const disease        = primary.disease || {};
+  const conf           = primary.confidence || 0;
+  const fmtPct         = window.CropModel?.fmtPct || (v => (v*100).toFixed(1)+'%');
+  const severityBadge  = window.CropModel?.severityBadge || (() => 'badge-green');
 
   const titleEl = document.getElementById('result-header-title');
   if (titleEl) titleEl.textContent = '✅ Result Ready';
 
   document.getElementById('result-body').innerHTML = `
     <div class="result-disease">${disease.name}</div>
-    <div class="result-crop">${disease.crop} · <em>${disease.scientificName}</em></div>
+    <div class="result-crop">${disease.crop}</div>
     <span class="badge ${severityBadge(disease.severity)}" style="margin-bottom:20px;">⚠️ Severity: ${disease.severity}</span>
     <div class="result-accuracy">
       <div class="accuracy-label"><span>Confidence Score</span><span class="accuracy-value">${fmtPct(conf)}</span></div>
