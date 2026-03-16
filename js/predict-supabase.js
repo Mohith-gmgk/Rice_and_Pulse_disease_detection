@@ -224,6 +224,58 @@ async function callRealModel(file) {
 // ============================================================
 // FETCH DISEASE INFO FROM GEMINI
 // ============================================================
+function showAIButton(result) {
+  const existing = document.getElementById('ai-desc-btn-wrap');
+  if (existing) existing.remove();
+
+  const wrap = document.createElement('div');
+  wrap.id = 'ai-desc-btn-wrap';
+  wrap.style.cssText = 'margin-top:20px;text-align:center;';
+  wrap.innerHTML = `
+    <button id="ai-desc-btn" onclick="loadAIDescription()" style="
+      background: linear-gradient(135deg, #6c63ff, #4facfe);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    ">
+      🤖 Get AI Description
+    </button>
+  `;
+
+  const geminiDiv = document.getElementById('gemini-info');
+  geminiDiv.style.display = 'none';
+  geminiDiv.insertAdjacentElement('beforebegin', wrap);
+}
+
+window.loadAIDescription = async function() {
+  const result = window._lastPredResult;
+  if (!result) return;
+
+  const btn = document.getElementById('ai-desc-btn');
+  btn.innerHTML = '⏳ Loading...';
+  btn.disabled = true;
+
+  const pred = result.primary.disease;
+  const info = await fetchDiseaseInfo(pred.name, pred.crop, result.primary.confidence, result.isHealthy);
+  if (info) {
+    renderGeminiInfo(info, result.isHealthy);
+    // Hide button after showing info
+    const wrap = document.getElementById('ai-desc-btn-wrap');
+    if (wrap) wrap.remove();
+  } else {
+    btn.innerHTML = '🤖 Get AI Description';
+    btn.disabled = false;
+  }
+};
+
 async function fetchDiseaseInfo(disease, crop, confidence, isHealthy) {
   try {
     const response = await fetch('/api/disease-info', {
@@ -277,10 +329,9 @@ async function runAnalysis() {
     _analyzing = false;
     await autoSavePrediction(result);
 
-    // Fetch Gemini disease description in background
-    const pred = result.primary.disease;
-    fetchDiseaseInfo(pred.name, pred.crop, result.primary.confidence, result.isHealthy)
-      .then(info => { if (info) renderGeminiInfo(info, result.isHealthy); });
+    // Store result for AI button
+    window._lastPredResult = result;
+    showAIButton(result);
   } catch (err) {
     console.error('Analysis error:', err);
     const msg = err.message || 'Analysis failed. Try again.';
