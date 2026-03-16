@@ -16,10 +16,8 @@
 .hero .container {
   display: flex;
   align-items: center;
-  gap: 32px;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  padding-right: 32px;
 }
 
 .hero-bg {
@@ -55,8 +53,10 @@
 .hero-content {
   position: relative;
   z-index: 2;
-  flex: 1;
-  max-width: 620px;
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .hero-eyebrow {
@@ -101,6 +101,7 @@
 }
 
 .hero-actions {
+  justify-content: center;
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -108,6 +109,7 @@
 }
 
 .hero-stats {
+  justify-content: center;
   display: flex;
   gap: 40px;
   margin-top: 56px;
@@ -129,24 +131,9 @@
   margin-top: 2px;
 }
 
-.hero-visual {
-  position: relative;
-  width: 420px;
-  min-width: 380px;
-  flex-shrink: 0;
-  z-index: 1;
-  animation: fadeInRight 1s ease both 0.3s;
-  margin-right: 24px;
-}
 
-.hero-visual-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  overflow: visible;
-  box-shadow: var(--shadow);
-  position: relative;
-}
+
+
 
 .visual-img-placeholder {
   width: 100%;
@@ -469,5 +456,6 @@
   .diseases-grid { grid-template-columns: repeat(2, 1fr); }
   .model-section { padding: 36px 24px; }
   .cta-strip { padding: 36px 24px; }
-  .hero-stats { gap: 24px; flex-wrap: wrap; }
+  .hero-stats {
+  justify-content: center; gap: 24px; flex-wrap: wrap; }
 }
