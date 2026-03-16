@@ -8,8 +8,18 @@
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   padding-top: 80px;
+  padding-right: 0;
+}
+
+.hero .container {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 32px;
 }
 
 .hero-bg {
@@ -45,7 +55,8 @@
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 700px;
+  flex: 1;
+  max-width: 620px;
 }
 
 .hero-eyebrow {
@@ -119,21 +130,22 @@
 }
 
 .hero-visual {
-  position: absolute;
-  right: -40px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 480px;
+  position: relative;
+  width: 420px;
+  min-width: 380px;
+  flex-shrink: 0;
   z-index: 1;
   animation: fadeInRight 1s ease both 0.3s;
+  margin-right: 24px;
 }
 
 .hero-visual-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow);
+  position: relative;
 }
 
 .visual-img-placeholder {
